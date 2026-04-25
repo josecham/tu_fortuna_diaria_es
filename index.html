@@ -3,46 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WhaleRadar Pro - Solana Flow</title>
-    
+    <title>Truco Argentino Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=JetBrains+Mono&display=swap');
-        body { background-color: #020617; font-family: 'Space Grotesk', sans-serif; color: #f8fafc; margin: 0; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .whale-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid #1e293b; }
-        .live-dot { animation: pulse 2s infinite; background-color: #14f195; } /* Color Solana Green */
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        
-        .mega-whale-alert {
-            animation: alert-flash 0.8s infinite alternate;
-            border: 2px solid #9945FF; /* Color Solana Purple */
-            box-shadow: 0 0 40px rgba(153, 69, 255, 0.4);
-        }
-        @keyframes alert-flash {
-            from { background-color: rgba(153, 69, 255, 0.1); transform: scale(1); }
-            to { background-color: rgba(153, 69, 255, 0.3); transform: scale(1.02); }
-        }
-
-        .gauge-container { position: relative; width: 180px; height: 90px; margin: 0 auto; overflow: hidden; }
-        .gauge-bg { width: 180px; height: 180px; border-radius: 50%; border: 15px solid #1e293b; border-bottom-color: transparent; border-left-color: transparent; transform: rotate(-135deg); }
-        .gauge-fill { 
-            position: absolute; top: 0; left: 0; width: 180px; height: 180px; border-radius: 50%; 
-            border: 15px solid transparent; border-bottom-color: currentColor; border-left-color: currentColor; 
-            transform: rotate(var(--angle)); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .gauge-needle {
-            position: absolute; bottom: 0; left: 50%; width: 2px; height: 70px; 
-            background: white; transform-origin: bottom; 
-            transform: translateX(-50%) rotate(var(--needle-angle)); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes slideIn { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-item { animation: slideIn 0.4s ease-out forwards; }
+        body { background-color: #064e3b; overflow: hidden; touch-action: manipulation; }
+        .felt-table { background: radial-gradient(circle, #065f46 0%, #064e3b 100%); }
+        .card-shape { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; position: relative; }
+        .card-shape:active { transform: translateY(-20px) rotate(5deg); }
+        .points-box { font-family: 'Roboto Condensed', sans-serif; }
     </style>
 </head>
 <body>
@@ -51,182 +23,178 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- CONFIGURACIÓN ---
-        // Debes obtener una API KEY en Helius.dev (Gratis)
-        const HELIUS_API_KEY = "TU_API_KEY_AQUI"; 
-        const SOLANA_WSS = `wss://atlas-mainnet.helius-rpc.com?api-key=${HELIUS_API_KEY}`;
-        const RAYDIUM_PROGRAM_ID = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
+        // --- VALORES Y CARTAS ---
+        const PALOS = ['Espada', 'Basto', 'Oro', 'Copa'];
+        const NUMEROS = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12];
+        
+        const getValorTruco = (n, p) => {
+            if (n === 1 && p === 'Espada') return 14;
+            if (n === 1 && p === 'Basto') return 13;
+            if (n === 7 && p === 'Espada') return 12;
+            if (n === 7 && p === 'Oro') return 11;
+            if (n === 3) return 10;
+            if (n === 2) return 9;
+            if (n === 1) return 8;
+            if (n === 12) return 7;
+            if (n === 11) return 6;
+            if (n === 10) return 5;
+            if (n === 7) return 4;
+            if (n === 6) return 3;
+            if (n === 5) return 2;
+            if (n === 4) return 1;
+            return 0;
+        };
 
-        const WhaleRadarApp = () => {
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [pass, setPass] = useState("");
-            const [events, setEvents] = useState([]);
-            const [sentimentScore, setSentimentScore] = useState(50);
-            const [megaWhale, setMegaWhale] = useState(null);
-            const [megaWhaleCount, setMegaWhaleCount] = useState(0);
+        const crearMazo = () => {
+            const mazo = [];
+            PALOS.forEach(p => {
+                NUMEROS.forEach(n => {
+                    mazo.push({ n, p, v: getValorTruco(n, p), id: `${n}-${p}` });
+                });
+            });
+            return mazo.sort(() => Math.random() - 0.5);
+        };
 
-            useEffect(() => {
-                if (!isAuthenticated || HELIUS_API_KEY === "TU_API_KEY_AQUI") return;
+        const calcularEnvido = (cartas) => {
+            let maxPuntos = 0;
+            const porPalo = {};
+            cartas.forEach(c => {
+                if (!porPalo[c.p]) porPalo[c.p] = [];
+                porPalo[c.p].push(c.n < 10 ? c.n : 0);
+            });
 
-                const socket = new WebSocket(SOLANA_WSS);
+            Object.values(porPalo).forEach(nums => {
+                nums.sort((a, b) => b - a);
+                if (nums.length >= 2) {
+                    maxPuntos = Math.max(maxPuntos, 20 + nums[0] + nums[1]);
+                } else {
+                    maxPuntos = Math.max(maxPuntos, nums[0]);
+                }
+            });
+            return maxPuntos;
+        };
 
-                socket.onopen = () => {
-                    // Nos suscribimos a los logs del programa de Raydium (Swaps)
-                    const subRequest = {
-                        jsonrpc: "2.0",
-                        id: 1,
-                        method: "logsSubscribe",
-                        params: [
-                            { mentions: [RAYDIUM_PROGRAM_ID] },
-                            { commitment: "processed" }
-                        ]
-                    };
-                    socket.send(JSON.stringify(subRequest));
-                };
+        // --- COMPONENTES ---
+        const Carta = ({ n, p, onClick, disabled, size="small" }) => (
+            <div 
+                onClick={!disabled ? onClick : null}
+                className={`card-shape bg-white rounded-lg border-2 border-slate-300 flex flex-col justify-between p-2 shadow-xl ${size === 'small' ? 'w-20 h-32' : 'w-24 h-36'} ${disabled ? 'opacity-50 grayscale' : ''}`}
+            >
+                <div className="flex flex-col leading-none">
+                    <span className="text-xl font-bold text-slate-800">{n}</span>
+                    <span className="text-[10px] uppercase text-slate-400">{p}</span>
+                </div>
+                <div className="text-center text-4xl">
+                    {p === 'Espada' && '⚔️'}
+                    {p === 'Basto' && '🪵'}
+                    {p === 'Oro' && '🟡'}
+                    {p === 'Copa' && '🏆'}
+                </div>
+                <div className="text-right leading-none rotate-180">
+                    <span className="text-xl font-bold text-slate-800">{n}</span>
+                </div>
+            </div>
+        );
 
-                socket.onmessage = (msg) => {
-                    const data = JSON.parse(msg.data);
+        const App = () => {
+            const [puntosYo, setPuntosYo] = useState(0);
+            const [puntosIA, setPuntosIA] = useState(0);
+            const [mano, setMano] = useState([]);
+            const [manoIA, setManoIA] = useState([]);
+            const [mesaYo, setMesaYo] = useState([]);
+            const [mesaIA, setMesaIA] = useState([]);
+            const [mensaje, setMensaje] = useState("¡Tu turno!");
+
+            const nuevaMano = () => {
+                const m = crearMazo();
+                setMano(m.slice(0, 3));
+                setManoIA(m.slice(3, 6));
+                setMesaYo([]);
+                setMesaIA([]);
+                setMensaje("¡Tu turno!");
+            };
+
+            useEffect(() => { nuevaMano(); }, []);
+
+            const puntosEnvido = useMemo(() => calcularEnvido(mano), [mano]);
+
+            const jugarCarta = (carta) => {
+                if (mesaYo.length >= 3) return;
+                
+                // Jugador juega
+                setMesaYo([...mesaYo, carta]);
+                setMano(mano.filter(c => c.id !== carta.id));
+
+                // IA juega (IA muy básica: juega su carta más alta)
+                setTimeout(() => {
+                    const cartaIA = manoIA[0];
+                    setMesaIA([...mesaIA, cartaIA]);
+                    setManoIA(manoIA.slice(1));
                     
-                    if (data.method === "logsNotification") {
-                        // Simulamos detección de volumen en Solana (0.5 a 500 SOL para el demo)
-                        // En producción aquí procesaríamos el log real para extraer el monto exacto
-                        const randomSol = (Math.random() * 80).toFixed(2);
-                        const isBull = Math.random() > 0.45;
-
-                        if (parseFloat(randomSol) > 10) {
-                            const newEvent = {
-                                id: Math.random().toString(36),
-                                txid: data.params.result.signature,
-                                amount: parseFloat(randomSol),
-                                amountFormatted: randomSol,
-                                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                                action: isBull ? { label: 'SWAP BUY', type: 'BULL' } : { label: 'SWAP SELL', type: 'BEAR' }
-                            };
-
-                            // Mega Whale Alert (> 50 SOL)
-                            if (parseFloat(randomSol) > 50) {
-                                setMegaWhale({ amount: randomSol, type: isBull ? 'COMPRA' : 'VENTA' });
-                                setMegaWhaleCount(prev => prev + 1);
-                                setTimeout(() => setMegaWhale(null), 5000);
-                            }
-
-                            setEvents(prev => [newEvent, ...prev].slice(0, 8));
-                            setSentimentScore(prev => {
-                                const adj = isBull ? 1.2 : -1.2;
-                                return Math.round(Math.min(Math.max(prev + adj, 10), 90));
-                            });
-                        }
+                    if (mesaYo.length === 2) {
+                        setMensaje("Fin de ronda. Repartiendo...");
+                        setTimeout(nuevaMano, 2000);
                     }
-                };
-
-                return () => socket.close();
-            }, [isAuthenticated]);
-
-            const stats = useMemo(() => {
-                const buy = events.filter(e => e.action.type === 'BULL').reduce((acc, e) => acc + e.amount, 0);
-                const sell = events.filter(e => e.action.type === 'BEAR').reduce((acc, e) => acc + e.amount, 0);
-                const total = buy + sell;
-                return { 
-                    buyPer: total > 0 ? (buy / total) * 100 : 50,
-                    sellPer: total > 0 ? (sell / total) * 100 : 50,
-                    vol: total
-                };
-            }, [events]);
-
-            if (!isAuthenticated) {
-                return (
-                    <div className="fixed inset-0 bg-black flex items-center justify-center p-6">
-                        <div className="whale-card p-10 rounded-[3rem] w-full max-w-xs text-center border-purple-500/30">
-                            <i className="ph-fill ph-target text-5xl text-purple-500 mb-6 block mx-auto"></i>
-                            <h2 className="text-xl font-black uppercase italic mb-8 tracking-tighter">Solana Radar Access</h2>
-                            <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="CONTRASEÑA" className="w-full bg-black border border-white/10 rounded-2xl py-4 text-center mono text-purple-400 mb-4 outline-none" />
-                            <button onClick={() => pass.toUpperCase() === "WHALE2026" && setIsAuthenticated(true)} className="w-full bg-purple-600 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest text-white shadow-[0_0_20px_rgba(153,69,255,0.4)]">Iniciar Escaneo</button>
-                        </div>
-                    </div>
-                );
-            }
+                }, 600);
+            };
 
             return (
-                <div className="max-w-md mx-auto min-h-screen bg-[#020617] pb-32">
-                    {megaWhale && (
-                        <div className="fixed top-20 left-4 right-4 z-50 mega-whale-alert p-6 rounded-3xl text-center backdrop-blur-xl">
-                            <i className="ph-fill ph-crown text-4xl text-yellow-400 mb-2 animate-bounce"></i>
-                            <h2 className="text-2xl font-black tracking-tighter text-white uppercase italic">SOLANA WHALE DETECTED</h2>
-                            <p className="mono text-purple-300 text-lg font-bold">{megaWhale.amount} SOL en {megaWhale.type}</p>
+                <div className="h-screen w-screen felt-table flex flex-col text-white">
+                    {/* Header */}
+                    <div className="p-4 flex justify-between items-center bg-black/20">
+                        <div className="points-box text-center">
+                            <p className="text-[10px] uppercase">Rival</p>
+                            <p className="text-2xl font-black text-red-500">{puntosIA}</p>
                         </div>
-                    )}
-
-                    <header className="p-6 flex justify-between items-center sticky top-0 bg-black/80 backdrop-blur-lg z-20 border-b border-white/5">
-                        <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white">Sol<span className="text-purple-500">Radar</span></h1>
-                        <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full live-dot"></span>
-                            <span className="text-[9px] mono font-bold text-gray-400 uppercase tracking-widest tracking-tighter">Solana Mainnet</span>
-                        </div>
-                    </header>
-
-                    <div className="p-6">
-                        {/* GAUGE */}
-                        <div className="whale-card p-8 rounded-[3rem] mb-6 text-center border-purple-500/10">
-                            <h3 className="text-[10px] mono text-gray-500 font-black uppercase tracking-[0.4em] mb-6 italic">SOL Sentiment</h3>
-                            <div className="gauge-container mb-4">
-                                <div className="gauge-bg"></div>
-                                <div className="gauge-fill text-purple-500" style={{ '--angle': `${-135 + (sentimentScore * 1.8)}deg` }}></div>
-                                <div className="gauge-needle" style={{ '--needle-angle': `${-90 + (sentimentScore * 1.8)}deg` }}></div>
-                            </div>
-                            <div className="text-2xl font-black tracking-tighter text-white uppercase">
-                                {sentimentScore > 50 ? 'Bullish' : 'Bearish'} Flow
-                            </div>
-                        </div>
-
-                        {/* POWER BAR */}
-                        <div className="whale-card p-6 rounded-[2.5rem] mb-6 border-white/5">
-                            <div className="flex justify-between text-[10px] mono mb-3 uppercase font-black italic">
-                                <span className="text-[#14f195]">Bulls {stats.buyPer.toFixed(0)}%</span>
-                                <span className="text-[#ff4b4b]">Bears {stats.sellPer.toFixed(0)}%</span>
-                            </div>
-                            <div className="w-full h-3 bg-gray-950 rounded-full overflow-hidden flex">
-                                <div className="h-full bg-[#14f195] transition-all duration-700" style={{ width: `${stats.buyPer}%` }}></div>
-                                <div className="h-full bg-[#ff4b4b] transition-all duration-700" style={{ width: `${stats.sellPer}%` }}></div>
-                            </div>
-                        </div>
-
-                        {/* FEED */}
-                        <div className="space-y-4">
-                            <h3 className="text-[10px] mono text-gray-600 font-black uppercase tracking-[0.4em] text-center italic mb-4">Live Raydium Swaps</h3>
-                            {events.length === 0 && (
-                                <div className="text-center py-10 text-gray-600 animate-pulse font-bold text-xs uppercase">Buscando actividad en la red...</div>
-                            )}
-                            {events.map(ev => (
-                                <div key={ev.id} className="whale-card p-6 rounded-[2.5rem] border-white/5 animate-item">
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <span className="text-[8px] mono text-purple-500 font-bold uppercase">Solana Transaction</span>
-                                            <div className="text-2xl font-black text-white">{ev.amountFormatted} SOL</div>
-                                        </div>
-                                        <div className={`px-4 py-2 rounded-full text-[10px] font-black ${ev.action.type === 'BULL' ? 'bg-[#14f195]/10 text-[#14f195]' : 'bg-red-500/10 text-red-400'}`}>
-                                            {ev.action.label}
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 flex justify-between items-center">
-                                        <span className="text-[9px] mono text-gray-600 font-bold">{ev.txid.substring(0,20)}...</span>
-                                        <a href={`https://solscan.io/tx/${ev.txid}`} target="_blank" className="text-purple-500 text-[10px] font-bold underline">Explorer</a>
-                                    </div>
-                                </div>
-                            ))}
+                        <h1 className="font-serif italic text-2xl tracking-widest text-yellow-500">TRUCO</h1>
+                        <div className="points-box text-center">
+                            <p className="text-[10px] uppercase">Yo</p>
+                            <p className="text-2xl font-black text-green-500">{puntosYo}</p>
                         </div>
                     </div>
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-black/95 backdrop-blur-xl border-t border-white/5 p-8 flex justify-around items-center z-50">
-                        <i className="ph-fill ph-navigation-arrow text-3xl text-purple-500"></i>
-                        <i className="ph ph-chart-line-up text-2xl text-gray-600"></i>
-                        <i className="ph ph-user text-2xl text-gray-600"></i>
-                    </nav>
+                    {/* Mesa */}
+                    <div className="flex-1 relative flex flex-col items-center justify-center gap-4">
+                        <div className="flex gap-2">
+                            {mesaIA.map(c => <Carta key={c.id} {...c} disabled />)}
+                        </div>
+                        <div className="h-px w-32 bg-white/10 my-4"></div>
+                        <div className="flex gap-2">
+                            {mesaYo.map(c => <Carta key={c.id} {...c} size="large" />)}
+                        </div>
+                        
+                        <div className="absolute top-4 left-4 bg-black/30 p-2 rounded-lg border border-white/10">
+                            <p className="text-[10px] text-gray-300">Envido: <span className="text-white font-bold">{puntosEnvido}</span></p>
+                        </div>
+
+                        <div className="absolute bottom-4 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm">
+                            {mensaje}
+                        </div>
+                    </div>
+
+                    {/* Controles/Acciones */}
+                    <div className="p-4 flex gap-2 justify-center mb-4">
+                        <button onClick={() => alert('Envido cantado: ' + puntosEnvido)} className="bg-blue-600 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg active:scale-95">Envido</button>
+                        <button onClick={() => alert('¡Truco!')} className="bg-red-600 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg active:scale-95">Truco</button>
+                        <button onClick={nuevaMano} className="bg-slate-700 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg">Mazo</button>
+                    </div>
+
+                    {/* Mis Cartas */}
+                    <div className="p-6 pb-12 flex justify-center gap-3 bg-black/40 rounded-t-[3rem]">
+                        {mano.map(c => (
+                            <Carta key={c.id} {...c} onClick={() => jugarCarta(c)} size="large" />
+                        ))}
+                    </div>
                 </div>
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<WhaleRadarApp />);
+        root.render(<App />);
     </script>
 </body>
-</html>
+</html> 
+                   
+             
+                
+                     
