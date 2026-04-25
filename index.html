@@ -3,193 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Truco Argentino Pro + Sonidos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        body { background-color: #064e3b; overflow: hidden; touch-action: manipulation; font-family: sans-serif; }
-        .felt-table { background: radial-gradient(circle, #065f46 0%, #022c22 100%); }
-        
-        /* Estilo de los palitos de puntos */
-        .fosforo { width: 4px; height: 20px; background-color: #fde047; border-radius: 2px; display: inline-block; margin: 1px; box-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-        .fosforo-H { width: 20px; height: 4px; }
+    <title>Fortuna Para Hoy</title>
+    
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=🔮">
 
-        .card-animate { animation: deal 0.5s ease-out forwards; }
-        @keyframes deal { from { transform: translateY(300px) rotate(20deg); opacity: 0; } to { transform: translateY(0) rotate(0); opacity: 1; } }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        instablack: '#000000',
+                        instagreydark: '#121212',
+                        instagreylight: '#262626',
+                        notired: '#fe0101',
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        seridKr: ['"Noto Serif KR"', 'serif'], // Para estilo coreano si se desea
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilo para que no se pueda seleccionar texto y parezca más nativa */
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            background-color: black;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #root { width: 100%; height: 100%; display: flex; justify-content: center; }
+
+        /* Estilo para la "muesca" del teléfono simulada (opcional, para diseño) */
+        .phone-container {
+            width: 100%;
+            max-width: 420px; /* Ancho máximo tipo Max */
+            height: 100%;
+            border-radius: 40px;
+            background: black;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255,255,255,0.1);
+        }
+        
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background: black;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect } = React;
 
-        // Audios (usando librerías públicas de sonidos cortos)
-        const playSfx = (type) => {
-            const sounds = {
-                truco: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-                envido: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-                card: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'
-            };
-            new Audio(sounds[type]).play().catch(() => {});
+        // --- DATOS: Lista de mensajes de fortuna (¡puedes agregar los que quieras!) ---
+        const listaFortunas = [
+            { id: 1, mensaje: "Un viaje inesperado te traerá gran alegría.", tipo: "Aventura" },
+            { id: 2, mensaje: "Tu arduo trabajo pronto dará sus frutos. No te rindas.", tipo: "Éxito" },
+            { id: 3, mensaje: "Hoy es un buen día para conectar con un viejo amigo.", tipo: "Amistad" },
+            { id: 4, mensaje: "La paciencia es una virtud que te evitará muchos problemas esta semana.", tipo: "Sabiduría" },
+            { id: 5, mensaje: "Una nueva oportunidad financiera se aproxima. Estate alerta.", tipo: "Dinero" },
+            { id: 6, mensaje: "Confía en tu intuición; te guiará por el camino correcto.", tipo: "Espiritual" },
+            { id: 7, mensaje: "Dedica tiempo hoy a cuidar de ti mismo. Te lo mereces.", tipo: "Salud" },
+            { id: 8, mensaje: "Una sonrisa tuya puede cambiar el día de alguien más.", tipo: "Amor" },
+            { id: 9, mensaje: "El fracaso es solo la oportunidad de comenzar de nuevo de forma más inteligente.", tipo: "Motivación" },
+            { id: 10, mensaje: "Aprende a soltar lo que ya no te sirve para dejar espacio a lo nuevo.", tipo: "Crecimiento" },
+        ];
+
+        // Función para obtener la fecha actual formateada como en la imagen
+        const obtenerFechaFormateada = () => {
+            const hoy = new Date();
+            const y = hoy.getFullYear();
+            const m = String(hoy.getMonth() + 1).padStart(2, '0');
+            const d = String(hoy.getDate()).padStart(2, '0');
+            // Simulamos el día de la semana coreano/chino para el diseño
+            const diasEspanol = ["(Dom)", "(Lun)", "(Mar)", "(Mié)", "(Jue)", "(Vie)", "(Sáb)"];
+            const diaSemana = diasEspanol[hoy.getDay()];
+            return `${y}.${m}.${d} ${diaSemana}`;
         };
 
-        const PALOS = ['Espada', 'Basto', 'Oro', 'Copa'];
-        const NUMEROS = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12];
-        const getValor = (n, p) => {
-            if (n === 1 && p === 'Espada') return 14;
-            if (n === 1 && p === 'Basto') return 13;
-            if (n === 7 && p === 'Espada') return 12;
-            if (n === 7 && p === 'Oro') return 11;
-            if (n === 3) return 10; if (n === 2) return 9; if (n === 1) return 8;
-            if (n === 12) return 7; if (n === 11) return 6; if (n === 10) return 5;
-            if (n === 7) return 4; if (n === 6) return 3; if (n === 5) return 2;
-            return 1;
-        };
+        // --- COMPONENTE PRINCIPAL ---
+        function App() {
+            const [fortunaHoy, setFortunaHoy] = useState(listaFortunas[0]); // Por defecto la primera
+            const [fechaFormateada, setFechaFormateada] = useState("");
 
-        // Componente para dibujar los palitos (fósforos)
-        const MarcadorPuntos = ({ puntos }) => {
-            const gruposDe5 = Math.floor(puntos / 5);
-            const resto = puntos % 5;
-            
-            return (
-                <div className="flex flex-wrap w-16 gap-2 justify-center bg-black/20 p-2 rounded-lg">
-                    {[...Array(gruposDe5)].map((_, i) => (
-                        <div key={i} className="relative w-6 h-6 border-2 border-yellow-500/30">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400"></div>
-                            <div className="absolute top-0 left-0 w-1 h-full bg-yellow-400"></div>
-                            <div className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400"></div>
-                            <div className="absolute top-0 right-0 w-1 h-full bg-yellow-400"></div>
-                            <div className="absolute top-1/2 left-0 w-full h-1 bg-yellow-400 -rotate-45"></div>
-                        </div>
-                    ))}
-                    {resto > 0 && (
-                        <div className="grid grid-cols-2 gap-1">
-                            {[...Array(resto)].map((_, i) => <div key={i} className="fosforo"></div>)}
-                        </div>
-                    )}
-                </div>
-            );
-        };
+            // Función para cambiar la fortuna aleatoriamente
+            const obtenerNuevaFortuna = () => {
+                let nueva;
+                do {
+                    const indice = Math.floor(Math.random() * listaFortunas.length);
+                    nueva = listaFortunas[indice];
+                } while (nueva.id === fortunaHoy.id); // Asegurarnos que cambie si hay más de 1
 
-        const App = () => {
-            const [puntosYo, setPuntosYo] = useState(0);
-            const [puntosIA, setPuntosIA] = useState(0);
-            const [mano, setMano] = useState([]);
-            const [mesaYo, setMesaYo] = useState([]);
-            const [mesaIA, setMesaIA] = useState([]);
-            const [mensaje, setMensaje] = useState("¡Tu turno, miente!");
-
-            const repartir = () => {
-                playSfx('card');
-                const mazo = [];
-                PALOS.forEach(p => NUMEROS.forEach(n => mazo.push({ n, p, v: getValor(n, p), id: Math.random() })));
-                const barajado = mazo.sort(() => Math.random() - 0.5);
-                setMano(barajado.slice(0, 3));
-                setMesaYo([]);
-                setMesaIA([]);
-                setMensaje("Cartas nuevas...");
+                setFortunaHoy(nueva);
             };
 
-            useEffect(() => { repartir(); }, []);
-
-            const cantar = (tipo) => {
-                playSfx(tipo === 'truco' ? 'truco' : 'envido');
-                setMensaje(tipo.toUpperCase() + "!!!");
-            };
-
-            const tirarCarta = (c) => {
-                playSfx('card');
-                setMesaYo([...mesaYo, c]);
-                setMano(mano.filter(card => card.id !== c.id));
-                
-                // IA responde
-                setTimeout(() => {
-                    const cartaFicticiaIA = { n: '?', p: '?', v: 0, id: Math.random() };
-                    setMesaIA([...mesaIA, cartaFicticiaIA]);
-                    if (mesaYo.length === 2) {
-                        setPuntosYo(prev => prev + 1); // Suma un punto por ganar la mano
-                        setTimeout(repartir, 1500);
-                    }
-                }, 500);
-            };
+            // Al cargar la app, establecemos fecha y una fortuna aleatoria
+            useEffect(() => {
+                setFechaFormateada(obtenerFechaFormateada());
+                obtenerNuevaFortuna();
+            }, []);
 
             return (
-                <div className="h-screen w-screen felt-table flex flex-col text-white select-none">
-                    {/* Marcador Profesional */}
-                    <div className="flex justify-between p-4 bg-black/40 border-b border-white/10">
-                        <div className="flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-red-400">RIVAL</span>
-                            <MarcadorPuntos puntos={puntosIA} />
-                        </div>
-                        <div className="text-center">
-                            <h2 className="text-yellow-500 font-black italic tracking-tighter text-xl">TRUCO</h2>
-                            <span className="text-[9px] text-gray-400 uppercase">Mesa de Rosario</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-green-400">NOSOTROS</span>
-                            <MarcadorPuntos puntos={puntosYo} />
+                <div className="phone-container text-white flex flex-col font-sans">
+                    <div className="notch"></div>
+                    
+                    {/* Barra de estado simulada del teléfono */}
+                    <div className="flex justify-between items-center px-8 pt-3 pb-1 text-xs font-medium z-10">
+                        <span>8:28</span>
+                        <div className="flex items-center gap-1.5">
+                            <svg width="17" height="12" viewBox="0 0 17 12"><path fill="currentColor" d="M10.3 1.5C12 1.5 13.5 2.1 14.8 3.3L16.5 1.5C14.8 -0.2 12.6 -1 10.3 -1C8 -1 5.8 -0.2 4.1 1.5L5.8 3.3C7.1 2.1 8.6 1.5 10.3 1.5Z"></path><path fill="currentColor" opacity="0.3" d="M10.3 5.5C11.1 5.5 11.8 5.8 12.4 6.4L14.1 4.6C13.1 3.6 11.8 3 10.3 3C8.8 3 7.5 3.6 6.5 4.6L8.2 6.4C8.8 5.8 9.5 5.5 10.3 5.5Z"></path><circle fill="currentColor" cx="10.3" cy="9.5" r="1.5"></circle></svg>
+                            <span>5G</span>
+                            <svg width="17" height="12" viewBox="0 0 17 12"><path fill="currentColor" d="M1 11H16V12H1V11Z"></path><path fill="currentColor" d="M1 1V10H16V1H1ZM15 9H2V2H15V9Z"></path></svg>
                         </div>
                     </div>
 
-                    {/* Área de juego */}
-                    <div className="flex-1 relative flex flex-col justify-around py-10 items-center">
-                        <div className="flex gap-2">
-                            {mesaIA.map((c, i) => (
-                                <div key={i} className="w-16 h-24 bg-slate-800 rounded-lg border-2 border-white/20 flex items-center justify-center text-2xl">🎴</div>
-                            ))}
+                    {/* Header estilo Instagram */}
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-instagreylight">
+                        <div className="flex items-center gap-3">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            <span className="font-semibold text-lg">Suerte Diaria</span>
                         </div>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"></path><path d="M8 4v4"></path><path d="M16 4v4"></path><path d="M4 8h16"></path></svg>
+                    </div>
 
-                        <div className="bg-black/20 px-6 py-2 rounded-full border border-white/5 text-sm font-bold animate-pulse text-yellow-200">
-                            {mensaje}
-                        </div>
-
-                        <div className="flex gap-2">
-                            {mesaYo.map((c, i) => (
-                                <div key={i} className="w-20 h-32 bg-white rounded-lg flex flex-col justify-between p-2 text-black shadow-2xl border-2 border-yellow-500">
-                                    <span className="font-bold text-lg">{c.n}</span>
-                                    <span className="text-center text-3xl">{c.p === 'Espada' ? '⚔️' : c.p === 'Basto' ? '🪵' : c.p === 'Oro' ? '🟡' : '🏆'}</span>
-                                    <span className="font-bold text-lg self-end rotate-180">{c.n}</span>
+                    {/* Contenido principal scrolleable (aunque no scrolleará aquí) */}
+                    <div className="flex-1 overflow-y-auto pb-20">
+                        {/* Post de Instagram */}
+                        <div className="p-4 border-b border-instagreylight">
+                            {/* Perfil */}
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-full bg-instagreylight flex items-center justify-center text-xl overflow-hidden border border-instagreylight">
+                                    🔮
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Botonera Acciones */}
-                    <div className="flex justify-center gap-4 mb-4">
-                        <button onClick={() => cantar('envido')} className="bg-gradient-to-b from-blue-500 to-blue-700 px-6 py-3 rounded-2xl font-black text-xs shadow-lg active:scale-90 transition-transform">ENVIDO</button>
-                        <button onClick={() => cantar('truco')} className="bg-gradient-to-b from-red-500 to-red-700 px-6 py-3 rounded-2xl font-black text-xs shadow-lg active:scale-90 transition-transform">TRUCO</button>
-                        <button onClick={repartir} className="bg-gray-700 px-4 py-3 rounded-2xl font-black text-[10px] shadow-lg">MAZO</button>
-                    </div>
-
-                    {/* Mis Cartas */}
-                    <div className="bg-black/60 p-6 rounded-t-[3rem] flex justify-center gap-4 border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-                        {mano.map((c) => (
-                            <div 
-                                key={c.id} 
-                                onClick={() => tirarCarta(c)}
-                                className="w-24 h-36 bg-white rounded-xl flex flex-col justify-between p-3 text-black shadow-xl card-animate border-2 border-slate-200 hover:-translate-y-4 transition-transform cursor-pointer"
-                            >
-                                <span className="font-bold text-xl">{c.n}</span>
-                                <span className="text-center text-4xl">{c.p === 'Espada' ? '⚔️' : c.p === 'Basto' ? '🪵' : c.p === 'Oro' ? '🟡' : '🏆'}</span>
-                                <div className="text-right flex flex-col">
-                                    <span className="text-[8px] text-gray-400 uppercase">{c.p}</span>
-                                    <span className="font-bold text-xl rotate-180">{c.n}</span>
+                                <div>
+                                    <p className="font-semibold text-sm">tu_fortuna_diaria_es</p>
+                                    <p className="text-xs text-gray-400">Ver horóscopo</p>
                                 </div>
                             </div>
-                        ))}
+
+                            {/* Imagen de la Fortuna (Diseño inspirado en la foto) */}
+                            <div className="aspect-square w-full bg-[#f8f6e9] rounded-sm p-8 flex flex-col items-center justify-center text-instablack shadow-inner mb-3">
+                                {/* Decoración esquinas coreanas */}
+                                <div className="w-full flex justify-between px-2 opacity-50">
+                                    <span className="text-4xl">©</span>
+                                    <span className="text-4xl text-right rotate-90">©</span>
+                                </div>
+                                
+                                <div className="flex-1 flex flex-col items-center justify-center gap-4 py-6">
+                                    {/* Texto Coreano simulado o título */}
+                                    <h1 className="text-5xl font-extrabold tracking-tighter leading-none text-center">
+                                        HOY<br/>SUERTE
+                                    </h1>
+                                    
+                                    {/* Fecha formateada dinámica */}
+                                    <div className="border border-instablack px-5 py-1 text-sm font-bold rounded-sm mt-2">
+                                        {fechaFormateada}
+                                    </div>
+                                    
+                                    {/* Mensaje Random Principal */}
+                                    <p className="text-lg font-medium text-center px-4 mt-4 leading-snug">
+                                        "{fortunaHoy.mensaje}"
+                                    </p>
+                                    
+                                    <span className="text-xs text-gray-500 mt-2 font-mono tracking-widest">
+                                        # {fortunaHoy.tipo.toUpperCase()}
+                                    </span>
+                                </div>
+
+                                <div className="w-full flex justify-between px-2 opacity-50 mt-auto">
+                                    <span className="text-4xl -rotate-90">©</span>
+                                    <span className="text-4xl rotate-180">©</span>
+                                </div>
+                            </div>
+
+                            {/* Botón para nueva fortuna */}
+                            <button 
+                                onClick={obtenerNuevaFortuna}
+                                className="w-full bg-white text-black font-semibold py-2.5 rounded-lg text-sm hover:bg-gray-200 active:scale-95 transition-all mb-4"
+                            >
+                                Obtener Nueva Fortuna
+                            </button>
+
+                            {/* Acciones de Post (Likes, Comentarios, etc) */}
+                            <div className="flex items-center justify-between py-2">
+                                <div className="flex items-center gap-4">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                </div>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            </div>
+
+                            {/* Texto subtítulo estilo Instagram */}
+                            <div className="text-sm space-y-1 pt-2">
+                                <p><span className="font-semibold">77 likes</span></p>
+                                <p><span className="font-semibold">tu_fortuna_diaria_es</span> Tu mensaje para {fechaFormateada} 🔮✨</p>
+                                <p className="text-xs text-gray-400 font-mono">#{fortunaHoy.tipo} #Suerte #Destino #Motivacion</p>
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Subtítulo grande superpuesto (como en la imagen del reproductor) */}
+                    <div className="absolute bottom-24 left-0 w-full text-center pointer-events-none z-30">
+                        <p className="text-white text-3xl font-extrabold uppercase tracking-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                            FORTUNA PARA HOY
+                        </p>
+                    </div>
+
+                    {/* Barra de navegación inferior simulada de PWA/Teléfono */}
+                    <div className="absolute bottom-0 left-0 w-full bg-instablack border-t border-instagreylight px-8 py-4 flex justify-between items-center z-40 pb-6 rounded-b-[40px]">
+                         <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
+                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                         <div className="w-7 h-7 rounded-full bg-instagreylight flex items-center justify-center text-sm border border-white">U</div>
+                    </div>
+                    
+                    {/* Barra de inicio nativa simulada */}
+                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full z-50"></div>
                 </div>
             );
-        };
+        }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
 </body>
 </html>
-        
+            
 
-     
+  
