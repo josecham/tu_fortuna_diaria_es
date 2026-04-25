@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suerte Diaria - Edición Premium</title>
+    <title>Suerte Diaria - Gold Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -14,6 +14,16 @@
                         instablack: '#000000',
                         instagreydark: '#121212',
                         instagreylight: '#262626',
+                        gold: '#D4AF37',
+                    },
+                    animation: {
+                        'shimmer': 'shimmer 2s infinite linear',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
                     }
                 }
             }
@@ -29,11 +39,24 @@
             display: flex;
             justify-content: center;
             height: 100vh;
+            color: white;
         }
         #root { width: 100%; height: 100%; max-width: 500px; }
         .lucky-card {
             background-color: #f8f6e9;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .gold-card {
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            background-size: 200% 200%;
+            animation: goldFlow 5s ease infinite;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            border: 2px solid #fcf6ba;
+        }
+        @keyframes goldFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
@@ -48,56 +71,31 @@
         const { useState, useEffect } = React;
 
         const listaFortunas = [
-            "Un viaje inesperado te traerá gran alegría.",
-            "Tu arduo trabajo pronto dará sus frutos. No te rindas.",
-            "Hoy es un buen día para conectar con un viejo amigo.",
-            "La paciencia es una virtud que te evitará problemas.",
-            "Una nueva oportunidad financiera se aproxima.",
-            "Confía en tu intuición; te guiará por el camino correcto.",
-            "Dedica tiempo hoy a cuidar de ti mismo. Te lo mereces.",
-            "Una sonrisa tuya puede cambiar el día de alguien más.",
-            "El fracaso es la oportunidad de comenzar de nuevo.",
-            "Aprende a soltar lo que ya no te sirve.",
-            "Grandes cosas tienen comienzos pequeños.",
-            "Tu creatividad florecerá en el momento menos pensado.",
-            "Alguien está pensando cosas maravillosas de ti ahora.",
-            "La suerte favorece a la mente preparada.",
-            "Un mensaje importante llegará antes de que termine el día.",
-            "Hoy el universo conspira a tu favor. ¡Aprovéchalo!",
-            "Tu energía positiva atraerá mejores personas a tu vida.",
-            "Pronto recibirás una noticia que has estado esperando.",
-            "El éxito no es el destino, es el camino. Disfrútalo.",
-            "No cuentes los días, haz que los días cuenten.",
-            "Una sorpresa romántica está en tu horizonte cercano.",
-            "Tu salud mejorará si escuchas más a tu cuerpo.",
-            "Es tiempo de perdonar y dejar ir viejos rencores.",
-            "La abundancia llegará a ti de fuentes inesperadas.",
-            "Confía: lo que buscas también te está buscando a ti.",
-            "Un pequeño cambio de hábito traerá grandes resultados.",
-            "Tu amabilidad será recompensada de forma mágica.",
-            "No temas pedir ayuda; hay manos listas para sostenerte.",
-            "Hoy encontrarás la respuesta que tanto buscabas.",
-            "Tu coraje inspirará a otros a seguir sus sueños.",
-            "El dinero fluye hacia ti de manera constante y fácil.",
-            "Mantén la calma, la tormenta está a punto de pasar.",
-            "Una puerta se cierra, pero dos más se abren hoy.",
-            "Tu sabiduría interior es más poderosa de lo que crees.",
-            "Date permiso para descansar; hoy el mundo puede esperar.",
-            "Un encuentro casual se convertirá en algo inolvidable.",
-            "Tu hogar se llenará de armonía y risas esta semana.",
-            "Cree en ti mismo tanto como yo creo en este mensaje.",
-            "La respuesta que buscas está en el silencio de hoy.",
-            "Eres mucho más fuerte de lo que te dices a ti mismo.",
-            "Un nuevo comienzo te espera a la vuelta de la esquina.",
-            "Tu generosidad volverá a ti multiplicada por diez.",
-            "El amor propio es el inicio de un romance de por vida.",
-            "No permitas que las nubes de hoy oculten tu sol.",
-            "Hoy es el mañana que tanto te preocupaba ayer.",
-            "Tu risa es la mejor medicina para los que te rodean.",
-            "Sigue adelante, estás más cerca de lo que imaginas.",
-            "El destino tiene preparado un plan brillante para ti.",
-            "Cada día es una nueva oportunidad para ser feliz.",
-            "Lo mejor está por venir. Créelo y lo verás."
+            "Un viaje inesperado te traerá gran alegría.", "Tu arduo trabajo pronto dará sus frutos. No te rindas.",
+            "Hoy es un buen día para conectar con un viejo amigo.", "La paciencia es una virtud que te evitará problemas.",
+            "Una nueva oportunidad financiera se aproxima.", "Confía en tu intuición; te guiará por el camino correcto.",
+            "Dedica tiempo hoy a cuidar de ti mismo. Te lo mereces.", "Una sonrisa tuya puede cambiar el día de alguien más.",
+            "El fracaso es la oportunidad de comenzar de nuevo.", "Aprende a soltar lo que ya no te sirve.",
+            "Grandes cosas tienen comienzos pequeños.", "Tu creatividad florecerá en el momento menos pensado.",
+            "Alguien está pensando cosas maravillosas de ti ahora.", "La suerte favorece a la mente preparada.",
+            "Un mensaje importante llegará antes de que termine el día.", "Hoy el universo conspira a tu favor. ¡Aprovéchalo!",
+            "Tu energía positiva atraerá mejores personas a tu vida.", "Pronto recibirás una noticia que has estado esperando.",
+            "El éxito no es el destino, es el camino. Disfrútalo.", "No cuentes los días, haz que los días cuenten.",
+            "Una sorpresa romántica está en tu horizonte cercano.", "Tu salud mejorará si escuchas más a tu cuerpo.",
+            "Es tiempo de perdonar y dejar ir viejos rencores.", "La abundancia llegará a ti de fuentes inesperadas.",
+            "Confía: lo que buscas también te está buscando a ti.", "Un pequeño cambio de hábito traerá grandes resultados.",
+            "Tu amabilidad será recompensada de forma mágica.", "No temas pedir ayuda; hay manos listas para sostenerte.",
+            "Hoy encontrarás la respuesta que tanto buscabas.", "Tu coraje inspirará a otros a seguir sus sueños.",
+            "El dinero fluye hacia ti de manera constante y fácil.", "Mantén la calma, la tormenta está a punto de pasar.",
+            "Una puerta se cierra, pero dos más se abren hoy.", "Tu sabiduría interior es más poderosa de lo que crees.",
+            "Date permiso para descansar; hoy el mundo puede esperar.", "Un encuentro casual se convertirá en algo inolvidable.",
+            "Tu hogar se llenará de armonía y risas esta semana.", "Cree en ti mismo tanto como yo creo en este mensaje.",
+            "La respuesta que buscas está en el silencio de hoy.", "Eres mucho más fuerte de lo que te dices a ti mismo.",
+            "Un nuevo comienzo te espera a la vuelta de la esquina.", "Tu generosidad volverá a ti multiplicada por diez.",
+            "El amor propio es el inicio de un romance de por vida.", "No permitas que las nubes de hoy oculten tu sol.",
+            "Hoy es el mañana que tanto te preocupaba ayer.", "Tu risa es la mejor medicina para los que te rodean.",
+            "Sigue adelante, estás más cerca de lo que imaginas.", "El destino tiene preparado un plan brillante para ti.",
+            "Cada día es una nueva oportunidad para ser feliz.", "Lo mejor está por venir. Créelo y lo verás."
         ];
 
         const obtenerFecha = () => {
@@ -109,10 +107,13 @@
         function App() {
             const [fortuna, setFortuna] = useState("");
             const [fecha, setFecha] = useState("");
+            const [esDorada, setEsDorada] = useState(false);
 
             const nuevaFortuna = () => {
                 const random = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
                 setFortuna(random);
+                // 20% de probabilidad de que sea dorada
+                setEsDorada(Math.random() < 0.20);
             };
 
             useEffect(() => {
@@ -130,50 +131,60 @@
                     </div>
 
                     {/* Contenido Principal */}
-                    <div className="flex-1 flex flex-col items-center justify-center p-3">
+                    <div className="flex-1 flex flex-col items-center justify-center p-4">
                         
                         {/* Perfil Mini */}
                         <div className="w-full flex items-center gap-3 mb-3 px-2">
-                            <div className="w-8 h-8 rounded-full bg-instagreylight flex items-center justify-center text-sm border border-white/10 shadow-lg">🔮</div>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border shadow-lg ${esDorada ? 'bg-gold border-yellow-200' : 'bg-instagreylight border-white/10'}`}>
+                                {esDorada ? '👑' : '🔮'}
+                            </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-xs tracking-tight">tu_fortuna_diaria_es</span>
-                                <span className="text-[10px] text-gray-500">Publicado justo ahora</span>
+                                <span className={`font-bold text-xs tracking-tight ${esDorada ? 'text-yellow-400' : 'text-white'}`}>
+                                    {esDorada ? 'fortuna_legendaria_vip' : 'tu_fortuna_diaria_es'}
+                                </span>
+                                <span className="text-[10px] text-gray-500">{esDorada ? '¡Suerte Máxima!' : 'Publicado justo ahora'}</span>
                             </div>
                         </div>
 
                         {/* TARJETA GIGANTE */}
-                        <div className="lucky-card w-full aspect-[3/4] rounded-xl p-8 flex flex-col items-center justify-between text-black relative shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <div className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
                             
-                            <div className="w-full flex justify-between text-4xl opacity-20 font-serif">
+                            <div className={`w-full flex justify-between text-4xl font-serif ${esDorada ? 'opacity-40' : 'opacity-20'}`}>
                                 <span>©</span><span className="rotate-90">©</span>
                             </div>
 
                             <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
-                                <h1 className="text-6xl font-black tracking-tighter leading-none italic uppercase">
-                                    Hoy<br/><span className="text-7xl">Suerte</span>
+                                <h1 className={`text-6xl font-black tracking-tighter leading-none italic uppercase ${esDorada ? 'drop-shadow-md text-slate-900' : 'text-black'}`}>
+                                    Hoy<br/><span className={esDorada ? 'text-7xl text-yellow-900' : 'text-7xl'}>Suerte</span>
                                 </h1>
                                 
-                                <div className="border-2 border-black px-6 py-1 text-sm font-black rounded-full">
+                                <div className={`border-2 px-6 py-1 text-sm font-black rounded-full ${esDorada ? 'border-yellow-900 text-yellow-900' : 'border-black text-black'}`}>
                                     {fecha}
                                 </div>
 
-                                <p className="text-xl md:text-2xl font-serif italic leading-tight px-2 mt-4">
+                                <p className={`text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4 ${esDorada ? 'text-yellow-950' : 'text-gray-800'}`}>
                                     "{fortuna}"
                                 </p>
+                                
+                                {esDorada && (
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-900 animate-pulse">
+                                        ✨ Recompensa Especial ✨
+                                    </span>
+                                )}
                             </div>
 
-                            <div className="w-full flex justify-between text-4xl opacity-20 font-serif">
+                            <div className={`w-full flex justify-between text-4xl font-serif ${esDorada ? 'opacity-40' : 'opacity-20'}`}>
                                 <span className="-rotate-90">©</span><span className="rotate-180">©</span>
                             </div>
                         </div>
 
                         {/* Botón de Acción */}
-                        <div className="w-full mt-6 px-2">
+                        <div className="w-full mt-8 px-2">
                             <button 
                                 onClick={nuevaFortuna}
-                                className="w-full bg-white text-black font-black py-4 rounded-2xl text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all"
+                                className={`w-full font-black py-4 rounded-2xl text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all border-b-4 ${esDorada ? 'bg-yellow-500 text-yellow-950 border-yellow-700' : 'bg-white text-black border-gray-300'}`}
                             >
-                                Obtener Nueva Fortuna
+                                {esDorada ? '¡Buscar otra leyenda!' : 'Obtener Nueva Fortuna'}
                             </button>
                         </div>
                     </div>
@@ -182,9 +193,9 @@
                     <div className="bg-instablack border-t border-instagreylight px-10 py-5 flex justify-between items-center text-gray-400">
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[1.5px]">
-                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden">
-                                <div className="w-full h-full bg-instagreylight flex items-center justify-center text-[10px] text-white font-bold">U</div>
+                         <div className={`w-8 h-8 rounded-full p-[1.5px] ${esDorada ? 'bg-yellow-400' : 'bg-gradient-to-tr from-yellow-400 to-purple-600'}`}>
+                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold">
+                                {esDorada ? '🥇' : 'U'}
                             </div>
                          </div>
                     </div>
