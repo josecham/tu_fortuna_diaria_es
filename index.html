@@ -6,6 +6,8 @@
     <title>Suerte Diaria - Gold Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -31,9 +33,17 @@
             justify-content: center;
             height: 100vh;
             color: white;
+            overflow: hidden;
         }
         #root { width: 100%; height: 100%; max-width: 500px; }
         .lucky-card { background-color: #f8f6e9; transition: all 0.5s ease; }
+        
+        /* Asegurar que las fuentes se rendericen bien en la imagen descargada */
+        .lucky-card h1, .lucky-card p {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         .gold-card {
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             background-size: 200% 200%;
@@ -55,7 +65,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         const TIKTOK_URL = "https://www.tiktok.com/@tu_fortuna_diaria_es";
 
@@ -87,11 +97,12 @@
             const [fortuna, setFortuna] = useState("");
             const [fecha, setFecha] = useState("");
             const [esDorada, setEsDorada] = useState(false);
+            const cardRef = useRef(null); // Referencia a la tarjeta para html2canvas
 
             const nuevaFortuna = () => {
                 const random = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
                 setFortuna(random);
-                setEsDorada(Math.random() < 0.20);
+                setEsDorada(Math.random() < 0.20); // 20% de probabilidad
             };
 
             useEffect(() => {
@@ -99,44 +110,87 @@
                 nuevaFortuna();
             }, []);
 
+            const descargarImagen = () => {
+                if (cardRef.current) {
+                    // Configuración para html2canvas
+                    html2canvas(cardRef.current, {
+                        backgroundColor: null, // Fondo transparente alrededor si lo hay
+                        scale: 2, // Doble de resolución para que se vea bien en celulares
+                        logging: false, 
+                        useCORS: true // Permitir imágenes de otros dominios si las hubiera
+                    }).then(canvas => {
+                        // Convertir canvas a URL de imagen
+                        const image = canvas.toDataURL("image/png");
+                        // Crear un enlace temporal para descargar
+                        const link = document.createElement('a');
+                        link.href = image;
+                        link.download = `MiFortunaDiaria_${fecha.replace(/\s+/g, '_')}.png`;
+                        link.click();
+                    });
+                }
+            };
+
             return (
                 <div className="h-full w-full flex flex-col bg-instablack text-white font-sans overflow-hidden">
+                    
+                    {/* Header */}
                     <div className="flex items-center gap-4 p-4 border-b border-instagreylight">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         <span className="font-bold text-lg">Suerte Diaria</span>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center justify-center p-4">
-                        <a href={TIKTOK_URL} target="_blank" className="w-full flex items-center gap-3 mb-3 px-2 active:opacity-60 transition-opacity">
+                    {/* Contenido Principal */}
+                    <div className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+                        
+                        {/* Perfil Mini */}
+                        <a href={TIKTOK_URL} target="_blank" className="w-full flex items-center gap-3 px-2 active:opacity-60 transition-opacity">
                             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border shadow-lg ${esDorada ? 'bg-gold border-yellow-200' : 'bg-instagreylight border-white/10'}`}>
                                 {esDorada ? '👑' : '🔮'}
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-1">
                                     <span className={`font-bold text-sm tracking-tight ${esDorada ? 'text-yellow-400' : 'text-white'}`}>tu_fortuna_diaria_es</span>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-gray-400"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.59-5.71-.29-3.37 2.13-6.48 5.42-7.2.51-.11 1.01-.16 1.53-.16.01 1.49-.01 2.99.02 4.48-.79.16-1.57.42-2.22.89-.96.69-1.48 1.83-1.46 3.01.01 1.03.48 2.04 1.25 2.73.9.83 2.15 1.2 3.37 1.01 1.14-.15 2.19-.88 2.67-1.92.29-.62.39-1.29.38-1.98-.01-4.14-.01-8.28-.02-12.42z"/></svg>
                                 </div>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Toca para seguir en TikTok</span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Sigue la suerte en TikTok</span>
                             </div>
                         </a>
 
-                        <div className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
-                            <div className="w-full flex justify-between text-4xl font-serif opacity-20"><span>©</span><span className="rotate-90">©</span></div>
+                        {/* TARJETA GIGANTE (Con Ref para captura) */}
+                        <div ref={cardRef} className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
+                            
+                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span>©</span><span className="rotate-90">©</span></div>
+
                             <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
                                 <h1 className="text-6xl font-black tracking-tighter leading-none italic uppercase">Hoy<br/><span className={esDorada ? 'text-7xl text-yellow-900' : 'text-7xl'}>Suerte</span></h1>
                                 <div className={`border-2 px-6 py-1 text-sm font-black rounded-full ${esDorada ? 'border-yellow-900 text-yellow-900' : 'border-black text-black'}`}>{fecha}</div>
                                 <p className="text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4">"{fortuna}"</p>
+                                
+                                <span className="text-[9px] text-gray-500 tracking-widest uppercase mt-4 opacity-50">Descargado de @tu_fortuna_diaria_es</span>
                             </div>
-                            <div className="w-full flex justify-between text-4xl font-serif opacity-20"><span className="-rotate-90">©</span><span className="rotate-180">©</span></div>
+
+                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span className="-rotate-90">©</span><span className="rotate-180">©</span></div>
                         </div>
 
-                        <div className="w-full mt-8 px-2">
+                        {/* Botón de Descargar/Compartir */}
+                        <div className="w-full px-2">
+                            <button 
+                                onClick={descargarImagen}
+                                className="w-full flex items-center justify-center gap-2 bg-instagreylight text-gray-200 font-semibold py-3 rounded-xl text-sm active:scale-95 transition-all"
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Guardar para Compartir
+                            </button>
+                        </div>
+
+                        {/* Botón de Nueva Fortuna */}
+                        <div className="w-full px-2">
                             <button onClick={nuevaFortuna} className={`w-full font-black py-4 rounded-2xl text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all border-b-4 ${esDorada ? 'bg-yellow-500 text-yellow-950 border-yellow-700' : 'bg-white text-black border-gray-300'}`}>
                                 {esDorada ? '✨ Buscar otra Leyenda ✨' : 'Obtener Nueva Fortuna'}
                             </button>
                         </div>
                     </div>
 
+                    {/* NavBar Inferior */}
                     <div className="bg-instablack border-t border-instagreylight px-10 py-5 flex justify-between items-center text-gray-400">
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -151,8 +205,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-
-    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-                  
+ 
