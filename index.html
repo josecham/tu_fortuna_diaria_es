@@ -15,15 +15,6 @@
                         instagreydark: '#121212',
                         instagreylight: '#262626',
                         gold: '#D4AF37',
-                    },
-                    animation: {
-                        'shimmer': 'shimmer 2s infinite linear',
-                    },
-                    keyframes: {
-                        shimmer: {
-                            '0%': { backgroundPosition: '-200% 0' },
-                            '100%': { backgroundPosition: '200% 0' },
-                        }
                     }
                 }
             }
@@ -42,16 +33,12 @@
             color: white;
         }
         #root { width: 100%; height: 100%; max-width: 500px; }
-        .lucky-card {
-            background-color: #f8f6e9;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .lucky-card { background-color: #f8f6e9; transition: all 0.5s ease; }
         .gold-card {
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             background-size: 200% 200%;
             animation: goldFlow 5s ease infinite;
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
-            border: 2px solid #fcf6ba;
         }
         @keyframes goldFlow {
             0% { background-position: 0% 50%; }
@@ -70,6 +57,8 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
+        const TIKTOK_URL = "https://www.tiktok.com/@tu_fortuna_diaria_es";
+
         const listaFortunas = [
             "Un viaje inesperado te traerá gran alegría.", "Tu arduo trabajo pronto dará sus frutos. No te rindas.",
             "Hoy es un buen día para conectar con un viejo amigo.", "La paciencia es una virtud que te evitará problemas.",
@@ -78,24 +67,14 @@
             "El fracaso es la oportunidad de comenzar de nuevo.", "Aprende a soltar lo que ya no te sirve.",
             "Grandes cosas tienen comienzos pequeños.", "Tu creatividad florecerá en el momento menos pensado.",
             "Alguien está pensando cosas maravillosas de ti ahora.", "La suerte favorece a la mente preparada.",
-            "Un mensaje importante llegará antes de que termine el día.", "Hoy el universo conspira a tu favor. ¡Aprovéchalo!",
-            "Tu energía positiva atraerá mejores personas a tu vida.", "Pronto recibirás una noticia que has estado esperando.",
-            "El éxito no es el destino, es el camino. Disfrútalo.", "No cuentes los días, haz que los días cuenten.",
-            "Una sorpresa romántica está en tu horizonte cercano.", "Tu salud mejorará si escuchas más a tu cuerpo.",
-            "Es tiempo de perdonar y dejar ir viejos rencores.", "La abundancia llegará a ti de fuentes inesperadas.",
-            "Confía: lo que buscas también te está buscando a ti.", "Un pequeño cambio de hábito traerá grandes resultados.",
-            "Tu amabilidad será recompensada de forma mágica.", "No temas pedir ayuda; hay manos listas para sostenerte.",
-            "Hoy encontrarás la respuesta que tanto buscabas.", "Tu coraje inspirará a otros a seguir sus sueños.",
+            "Hoy el universo conspira a tu favor. ¡Aprovéchalo!", "Tu energía positiva atraerá mejores personas a tu vida.",
+            "Pronto recibirás una noticia que has estado esperando.", "El éxito no es el destino, es el camino. Disfrútalo.",
+            "Una sorpresa romántica está en tu horizonte cercano.", "La abundancia llegará a ti de fuentes inesperadas.",
+            "Tu amabilidad será recompensada de forma mágica.", "Hoy encontrarás la respuesta que tanto buscabas.",
             "El dinero fluye hacia ti de manera constante y fácil.", "Mantén la calma, la tormenta está a punto de pasar.",
             "Una puerta se cierra, pero dos más se abren hoy.", "Tu sabiduría interior es más poderosa de lo que crees.",
-            "Date permiso para descansar; hoy el mundo puede esperar.", "Un encuentro casual se convertirá en algo inolvidable.",
-            "Tu hogar se llenará de armonía y risas esta semana.", "Cree en ti mismo tanto como yo creo en este mensaje.",
-            "La respuesta que buscas está en el silencio de hoy.", "Eres mucho más fuerte de lo que te dices a ti mismo.",
-            "Un nuevo comienzo te espera a la vuelta de la esquina.", "Tu generosidad volverá a ti multiplicada por diez.",
-            "El amor propio es el inicio de un romance de por vida.", "No permitas que las nubes de hoy oculten tu sol.",
-            "Hoy es el mañana que tanto te preocupaba ayer.", "Tu risa es la mejor medicina para los que te rodean.",
-            "Sigue adelante, estás más cerca de lo que imaginas.", "El destino tiene preparado un plan brillante para ti.",
-            "Cada día es una nueva oportunidad para ser feliz.", "Lo mejor está por venir. Créelo y lo verás."
+            "Un encuentro casual se convertirá en algo inolvidable.", "Cree en ti mismo tanto como yo creo en este mensaje.",
+            "El amor propio es el inicio de un romance de por vida.", "Lo mejor está por venir. Créelo y lo verás."
         ];
 
         const obtenerFecha = () => {
@@ -112,7 +91,6 @@
             const nuevaFortuna = () => {
                 const random = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
                 setFortuna(random);
-                // 20% de probabilidad de que sea dorada
                 setEsDorada(Math.random() < 0.20);
             };
 
@@ -133,28 +111,37 @@
                     {/* Contenido Principal */}
                     <div className="flex-1 flex flex-col items-center justify-center p-4">
                         
-                        {/* Perfil Mini */}
-                        <div className="w-full flex items-center gap-3 mb-3 px-2">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border shadow-lg ${esDorada ? 'bg-gold border-yellow-200' : 'bg-instagreylight border-white/10'}`}>
+                        {/* Perfil Mini con Link a TikTok */}
+                        <a 
+                            href={TIKTOK_URL} 
+                            target="_blank" 
+                            className="w-full flex items-center gap-3 mb-3 px-2 active:opacity-60 transition-opacity"
+                        >
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border shadow-lg ${esDorada ? 'bg-gold border-yellow-200' : 'bg-instagreylight border-white/10'}`}>
                                 {esDorada ? '👑' : '🔮'}
                             </div>
                             <div className="flex flex-col">
-                                <span className={`font-bold text-xs tracking-tight ${esDorada ? 'text-yellow-400' : 'text-white'}`}>
-                                    {esDorada ? 'fortuna_legendaria_vip' : 'tu_fortuna_diaria_es'}
-                                </span>
-                                <span className="text-[10px] text-gray-500">{esDorada ? '¡Suerte Máxima!' : 'Publicado justo ahora'}</span>
+                                <div className="flex items-center gap-1">
+                                    <span className={`font-bold text-sm tracking-tight ${esDorada ? 'text-yellow-400' : 'text-white'}`}>
+                                        tu_fortuna_diaria_es
+                                    </span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-gray-400">
+                                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.59-5.71-.29-3.37 2.13-6.48 5.42-7.2.51-.11 1.01-.16 1.53-.16.01 1.49-.01 2.99.02 4.48-.79.16-1.57.42-2.22.89-.96.69-1.48 1.83-1.46 3.01.01 1.03.48 2.04 1.25 2.73.9.83 2.15 1.2 3.37 1.01 1.14-.15 2.19-.88 2.67-1.92.29-.62.39-1.29.38-1.98-.01-4.14-.01-8.28-.02-12.42z"/>
+                                    </svg>
+                                </div>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Toca para seguir en TikTok</span>
                             </div>
-                        </div>
+                        </a>
 
                         {/* TARJETA GIGANTE */}
                         <div className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
                             
-                            <div className={`w-full flex justify-between text-4xl font-serif ${esDorada ? 'opacity-40' : 'opacity-20'}`}>
+                            <div className={`w-full flex justify-between text-4xl font-serif opacity-20`}>
                                 <span>©</span><span className="rotate-90">©</span>
                             </div>
 
                             <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
-                                <h1 className={`text-6xl font-black tracking-tighter leading-none italic uppercase ${esDorada ? 'drop-shadow-md text-slate-900' : 'text-black'}`}>
+                                <h1 className="text-6xl font-black tracking-tighter leading-none italic uppercase">
                                     Hoy<br/><span className={esDorada ? 'text-7xl text-yellow-900' : 'text-7xl'}>Suerte</span>
                                 </h1>
                                 
@@ -162,18 +149,12 @@
                                     {fecha}
                                 </div>
 
-                                <p className={`text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4 ${esDorada ? 'text-yellow-950' : 'text-gray-800'}`}>
+                                <p className={`text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4`}>
                                     "{fortuna}"
                                 </p>
-                                
-                                {esDorada && (
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-900 animate-pulse">
-                                        ✨ Recompensa Especial ✨
-                                    </span>
-                                )}
                             </div>
 
-                            <div className={`w-full flex justify-between text-4xl font-serif ${esDorada ? 'opacity-40' : 'opacity-20'}`}>
+                            <div className={`w-full flex justify-between text-4xl font-serif opacity-20`}>
                                 <span className="-rotate-90">©</span><span className="rotate-180">©</span>
                             </div>
                         </div>
@@ -184,7 +165,7 @@
                                 onClick={nuevaFortuna}
                                 className={`w-full font-black py-4 rounded-2xl text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all border-b-4 ${esDorada ? 'bg-yellow-500 text-yellow-950 border-yellow-700' : 'bg-white text-black border-gray-300'}`}
                             >
-                                {esDorada ? '¡Buscar otra leyenda!' : 'Obtener Nueva Fortuna'}
+                                {esDorada ? '✨ Buscar otra Leyenda ✨' : 'Obtener Nueva Fortuna'}
                             </button>
                         </div>
                     </div>
@@ -193,11 +174,11 @@
                     <div className="bg-instablack border-t border-instagreylight px-10 py-5 flex justify-between items-center text-gray-400">
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                         <div className={`w-8 h-8 rounded-full p-[1.5px] ${esDorada ? 'bg-yellow-400' : 'bg-gradient-to-tr from-yellow-400 to-purple-600'}`}>
-                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold">
-                                {esDorada ? '🥇' : 'U'}
+                         <a href={TIKTOK_URL} target="_blank" className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[1.5px]">
+                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold italic">
+                                T
                             </div>
-                         </div>
+                         </a>
                     </div>
                 </div>
             );
@@ -208,6 +189,5 @@
     </script>
 </body>
 </html>
-        
-
-                    
+     
+       
