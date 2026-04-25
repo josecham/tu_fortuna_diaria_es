@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fortuna Para Hoy</title>
+    <title>Suerte Diaria - Fortuna Grande</title>
     
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=🔮">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,18 +18,12 @@
                         instablack: '#000000',
                         instagreydark: '#121212',
                         instagreylight: '#262626',
-                        notired: '#fe0101',
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-                        seridKr: ['"Noto Serif KR"', 'serif'], // Para estilo coreano si se desea
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Estilo para que no se pueda seleccionar texto y parezca más nativa */
         body {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -38,36 +31,11 @@
             background-color: black;
             color: white;
             height: 100vh;
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
         }
-        #root { width: 100%; height: 100%; display: flex; justify-content: center; }
-
-        /* Estilo para la "muesca" del teléfono simulada (opcional, para diseño) */
-        .phone-container {
-            width: 100%;
-            max-width: 420px; /* Ancho máximo tipo Max */
-            height: 100%;
-            border-radius: 40px;
-            background: black;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(255,255,255,0.1);
-        }
-        
-        .notch {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 30px;
-            background: black;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            z-index: 100;
-        }
+        #root { width: 100%; height: 100%; max-width: 500px; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -80,35 +48,34 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- DATOS: Lista de mensajes de fortuna (¡puedes agregar los que quieras!) ---
+        // --- DATOS: Lista de mensajes de fortuna aleatorios ---
         const listaFortunas = [
-            { id: 1, mensaje: "Un viaje inesperado te traerá gran alegría.", tipo: "Aventura" },
-            { id: 2, mensaje: "Tu arduo trabajo pronto dará sus frutos. No te rindas.", tipo: "Éxito" },
-            { id: 3, mensaje: "Hoy es un buen día para conectar con un viejo amigo.", tipo: "Amistad" },
-            { id: 4, mensaje: "La paciencia es una virtud que te evitará muchos problemas esta semana.", tipo: "Sabiduría" },
-            { id: 5, mensaje: "Una nueva oportunidad financiera se aproxima. Estate alerta.", tipo: "Dinero" },
-            { id: 6, mensaje: "Confía en tu intuición; te guiará por el camino correcto.", tipo: "Espiritual" },
-            { id: 7, mensaje: "Dedica tiempo hoy a cuidar de ti mismo. Te lo mereces.", tipo: "Salud" },
-            { id: 8, mensaje: "Una sonrisa tuya puede cambiar el día de alguien más.", tipo: "Amor" },
-            { id: 9, mensaje: "El fracaso es solo la oportunidad de comenzar de nuevo de forma más inteligente.", tipo: "Motivación" },
-            { id: 10, mensaje: "Aprende a soltar lo que ya no te sirve para dejar espacio a lo nuevo.", tipo: "Crecimiento" },
+            "Una sonrisa tuya puede cambiar el día de alguien más.",
+            "Hoy es un día perfecto para empezar ese proyecto que has estado posponiendo.",
+            "Alguien cercano te dará una grata sorpresa esta semana.",
+            "Confía en tu intuición; te guiará por el camino correcto hoy.",
+            "Un viaje inesperado te traerá nuevas y valiosas perspectivas.",
+            "Tu arduo trabajo pronto dará sus frutos. Mantén la perseverancia.",
+            "No temas a los cambios; a menudo traen consigo mejores oportunidades.",
+            "La paciencia es una virtud que te ahorrará muchos dolores de cabeza.",
+            "Una nueva amistad te abrirá puertas que no sabías que existían.",
+            "Aprende del pasado, pero vive el presente con intensidad."
         ];
 
-        // Función para obtener la fecha actual formateada como en la imagen
+        // Función para obtener la fecha actual en formato dinámico
         const obtenerFechaFormateada = () => {
             const hoy = new Date();
             const y = hoy.getFullYear();
             const m = String(hoy.getMonth() + 1).padStart(2, '0');
             const d = String(hoy.getDate()).padStart(2, '0');
-            // Simulamos el día de la semana coreano/chino para el diseño
-            const diasEspanol = ["(Dom)", "(Lun)", "(Mar)", "(Mié)", "(Jue)", "(Vie)", "(Sáb)"];
-            const diaSemana = diasEspanol[hoy.getDay()];
+            const diasSemana = ["(Dom)", "(Lun)", "(Mar)", "(Mié)", "(Jue)", "(Vie)", "(Sáb)"];
+            const diaSemana = diasSemana[hoy.getDay()];
             return `${y}.${m}.${d} ${diaSemana}`;
         };
 
         // --- COMPONENTE PRINCIPAL ---
         function App() {
-            const [fortunaHoy, setFortunaHoy] = useState(listaFortunas[0]); // Por defecto la primera
+            const [fortunaHoy, setFortunaHoy] = useState(listaFortunas[0]);
             const [fechaFormateada, setFechaFormateada] = useState("");
 
             // Función para cambiar la fortuna aleatoriamente
@@ -117,135 +84,84 @@
                 do {
                     const indice = Math.floor(Math.random() * listaFortunas.length);
                     nueva = listaFortunas[indice];
-                } while (nueva.id === fortunaHoy.id); // Asegurarnos que cambie si hay más de 1
+                } while (nueva === fortunaHoy); // Evitar que salga la misma seguida si hay más de una
 
                 setFortunaHoy(nueva);
             };
 
-            // Al cargar la app, establecemos fecha y una fortuna aleatoria
+            // Establecer fecha y fortuna al cargar
             useEffect(() => {
                 setFechaFormateada(obtenerFechaFormateada());
                 obtenerNuevaFortuna();
             }, []);
 
             return (
-                <div className="phone-container text-white flex flex-col font-sans">
-                    <div className="notch"></div>
+                <div className="h-full w-full flex flex-col bg-instablack font-sans relative">
                     
-                    {/* Barra de estado simulada del teléfono */}
-                    <div className="flex justify-between items-center px-8 pt-3 pb-1 text-xs font-medium z-10">
-                        <span>.</span>
-                        <div className="flex items-center gap-1.5">
-                            <svg width="17" height="12" viewBox="0 0 17 12"><path fill="currentColor" d="M10.3 1.5C12 1.5 13.5 2.1 14.8 3.3L16.5 1.5C14.8 -0.2 12.6 -1 10.3 -1C8 -1 5.8 -0.2 4.1 1.5L5.8 3.3C7.1 2.1 8.6 1.5 10.3 1.5Z"></path><path fill="currentColor" opacity="0.3" d="M10.3 5.5C11.1 5.5 11.8 5.8 12.4 6.4L14.1 4.6C13.1 3.6 11.8 3 10.3 3C8.8 3 7.5 3.6 6.5 4.6L8.2 6.4C8.8 5.8 9.5 5.5 10.3 5.5Z"></path><circle fill="currentColor" cx="10.3" cy="9.5" r="1.5"></circle></svg>
-                            <span>5G</span>
-                            <svg width="17" height="12" viewBox="0 0 17 12"><path fill="currentColor" d="M1 11H16V12H1V11Z"></path><path fill="currentColor" d="M1 1V10H16V1H1ZM15 9H2V2H15V9Z"></path></svg>
-                        </div>
+                    {/* 1. Header (Reducido) */}
+                    <div className="flex items-center gap-2 p-3 border-b border-instagreylight">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        <span className="font-bold text-base">Suerte Diaria</span>
                     </div>
 
-                    {/* Header estilo Instagram */}
-                    <div className="flex items-center justify-between px-4 py-2 border-b border-instagreylight">
-                        <div className="flex items-center gap-3">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                            <span className="font-semibold text-lg">Suerte Diaria</span>
-                        </div>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"></path><path d="M8 4v4"></path><path d="M16 4v4"></path><path d="M4 8h16"></path></svg>
-                    </div>
-
-                    {/* Contenido principal scrolleable (aunque no scrolleará aquí) */}
-                    <div className="flex-1 overflow-y-auto pb-20">
-                        {/* Post de Instagram */}
-                        <div className="p-4 border-b border-instagreylight">
-                            {/* Perfil */}
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-10 h-10 rounded-full bg-instagreylight flex items-center justify-center text-xl overflow-hidden border border-instagreylight">
-                                    🔮
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-sm">tu_fortuna_diaria_es</p>
-                                    <p className="text-xs text-gray-400">Ver horóscopo</p>
-                                </div>
+                    {/* 2. Área Central: La Imagen Grande */}
+                    <div className="flex-1 p-2 flex flex-col items-center justify-center">
+                        {/* Perfil (Pequeño) */}
+                        <div className="w-full flex items-center gap-2 mb-2 px-2">
+                            <div className="w-7 h-7 rounded-full bg-instagreylight flex items-center justify-center text-xs">🔮</div>
+                            <div>
+                                <p className="font-semibold text-xs">tu_fortuna_diaria_es</p>
+                                <p className="text-[10px] text-gray-400">Ver horóscopo</p>
                             </div>
+                        </div>
 
-                            {/* Imagen de la Fortuna (Diseño inspirado en la foto) */}
-                            <div className="aspect-square w-full bg-[#f8f6e9] rounded-sm p-8 flex flex-col items-center justify-center text-instablack shadow-inner mb-3">
-                                {/* Decoración esquinas coreanas */}
-                                <div className="w-full flex justify-between px-2 opacity-50">
-                                    <span className="text-4xl">©</span>
-                                    <span className="text-4xl text-right rotate-90">©</span>
+                        {/* TARJETA DE LA FORTUNA: AGRANDADA */}
+                        <div className="aspect-[4/5] w-full bg-[#f8f6e9] rounded-md p-6 flex flex-col items-center justify-between text-instablack shadow-inner relative overflow-hidden">
+                            {/* Decoración esquinas coreanas */}
+                            <div className="w-full flex justify-between px-2 text-3xl opacity-30">
+                                <span>©</span><span className="rotate-90">©</span>
+                            </div>
+                            
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3 py-4 text-center">
+                                <h1 className="text-5xl font-extrabold tracking-tighter leading-none mb-2">HOY<br/>SUERTE</h1>
+                                
+                                <div className="border border-instablack px-4 py-0.5 text-xs font-bold rounded-sm mb-4">
+                                    {fechaFormateada}
                                 </div>
                                 
-                                <div className="flex-1 flex flex-col items-center justify-center gap-4 py-6">
-                                    {/* Texto Coreano simulado o título */}
-                                    <h1 className="text-5xl font-extrabold tracking-tighter leading-none text-center">
-                                        HOY<br/>SUERTE
-                                    </h1>
-                                    
-                                    {/* Fecha formateada dinámica */}
-                                    <div className="border border-instablack px-5 py-1 text-sm font-bold rounded-sm mt-2">
-                                        {fechaFormateada}
-                                    </div>
-                                    
-                                    {/* Mensaje Random Principal */}
-                                    <p className="text-lg font-medium text-center px-4 mt-4 leading-snug">
-                                        "{fortunaHoy.mensaje}"
-                                    </p>
-                                    
-                                    <span className="text-xs text-gray-500 mt-2 font-mono tracking-widest">
-                                        # {fortunaHoy.tipo.toUpperCase()}
-                                    </span>
-                                </div>
-
-                                <div className="w-full flex justify-between px-2 opacity-50 mt-auto">
-                                    <span className="text-4xl -rotate-90">©</span>
-                                    <span className="text-4xl rotate-180">©</span>
-                                </div>
+                                <p className="text-lg font-medium leading-snug px-2">
+                                    "{fortunaHoy}"
+                                </p>
                             </div>
 
-                            {/* Botón para nueva fortuna */}
-                            <button 
-                                onClick={obtenerNuevaFortuna}
-                                className="w-full bg-white text-black font-semibold py-2.5 rounded-lg text-sm hover:bg-gray-200 active:scale-95 transition-all mb-4"
-                            >
-                                Obtener Nueva Fortuna
-                            </button>
-
-                            {/* Acciones de Post (Likes, Comentarios, etc) */}
-                            <div className="flex items-center justify-between py-2">
-                                <div className="flex items-center gap-4">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                                </div>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                            </div>
-
-                            {/* Texto subtítulo estilo Instagram */}
-                            <div className="text-sm space-y-1 pt-2">
-                                <p><span className="font-semibold">77 likes</span></p>
-                                <p><span className="font-semibold">tu_fortuna_diaria_es</span> Tu mensaje para {fechaFormateada} 🔮✨</p>
-                                <p className="text-xs text-gray-400 font-mono">#{fortunaHoy.tipo} #Suerte #Destino #Motivacion</p>
+                            <div className="w-full flex justify-between px-2 text-3xl opacity-30">
+                                <span className="-rotate-90">©</span><span className="rotate-180">©</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Subtítulo grande superpuesto (como en la imagen del reproductor) */}
-                    <div className="absolute bottom-24 left-0 w-full text-center pointer-events-none z-30">
-                        <p className="text-white text-3xl font-extrabold uppercase tracking-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                            FORTUNA PARA HOY
-                        </p>
+                    {/* 3. Acciones Inferiores (Compactas) */}
+                    <div className="p-3 pt-0 border-b border-instagreylight">
+                        <button 
+                            onClick={obtenerNuevaFortuna}
+                            className="w-full bg-white text-black font-semibold py-2 rounded-md text-sm hover:bg-gray-200 active:scale-95 transition-all mb-3"
+                        >
+                            Obtener Nueva Fortuna
+                        </button>
+
+                        <div className="flex items-center justify-between text-gray-400 text-xs px-1">
+                            <span>77 likes</span>
+                            <span className="font-mono">{fechaFormateada}</span>
+                        </div>
                     </div>
 
-                    {/* Barra de navegación inferior simulada de PWA/Teléfono */}
-                    <div className="absolute bottom-0 left-0 w-full bg-instablack border-t border-instagreylight px-8 py-4 flex justify-between items-center z-40 pb-6 rounded-b-[40px]">
-                         <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
-                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                         <div className="w-7 h-7 rounded-full bg-instagreylight flex items-center justify-center text-sm border border-white">U</div>
+                    {/* Barra de navegación inferior simulada (Reducida) */}
+                    <div className="bg-instablack border-t border-instagreylight px-8 py-3 flex justify-between items-center text-gray-500">
+                         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
+                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                         <div className="w-6 h-6 rounded-full bg-instagreylight flex items-center justify-center text-xs border border-white text-white">U</div>
                     </div>
-                    
-                    {/* Barra de inicio nativa simulada */}
-                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full z-50"></div>
                 </div>
             );
         }
@@ -255,4 +171,3 @@
     </script>
 </body>
 </html>
-          
