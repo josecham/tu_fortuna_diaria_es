@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Truco Argentino Pro</title>
+    <title>Truco Argentino Pro + Sonidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #064e3b; overflow: hidden; touch-action: manipulation; }
-        .felt-table { background: radial-gradient(circle, #065f46 0%, #064e3b 100%); }
-        .card-shape { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; position: relative; }
-        .card-shape:active { transform: translateY(-20px) rotate(5deg); }
-        .points-box { font-family: 'Roboto Condensed', sans-serif; }
+        body { background-color: #064e3b; overflow: hidden; touch-action: manipulation; font-family: sans-serif; }
+        .felt-table { background: radial-gradient(circle, #065f46 0%, #022c22 100%); }
+        
+        /* Estilo de los palitos de puntos */
+        .fosforo { width: 4px; height: 20px; background-color: #fde047; border-radius: 2px; display: inline-block; margin: 1px; box-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .fosforo-H { width: 20px; height: 4px; }
+
+        .card-animate { animation: deal 0.5s ease-out forwards; }
+        @keyframes deal { from { transform: translateY(300px) rotate(20deg); opacity: 0; } to { transform: translateY(0) rotate(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -23,166 +26,159 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- VALORES Y CARTAS ---
+        // Audios (usando librerías públicas de sonidos cortos)
+        const playSfx = (type) => {
+            const sounds = {
+                truco: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+                envido: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+                card: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'
+            };
+            new Audio(sounds[type]).play().catch(() => {});
+        };
+
         const PALOS = ['Espada', 'Basto', 'Oro', 'Copa'];
         const NUMEROS = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12];
-        
-        const getValorTruco = (n, p) => {
+        const getValor = (n, p) => {
             if (n === 1 && p === 'Espada') return 14;
             if (n === 1 && p === 'Basto') return 13;
             if (n === 7 && p === 'Espada') return 12;
             if (n === 7 && p === 'Oro') return 11;
-            if (n === 3) return 10;
-            if (n === 2) return 9;
-            if (n === 1) return 8;
-            if (n === 12) return 7;
-            if (n === 11) return 6;
-            if (n === 10) return 5;
-            if (n === 7) return 4;
-            if (n === 6) return 3;
-            if (n === 5) return 2;
-            if (n === 4) return 1;
-            return 0;
+            if (n === 3) return 10; if (n === 2) return 9; if (n === 1) return 8;
+            if (n === 12) return 7; if (n === 11) return 6; if (n === 10) return 5;
+            if (n === 7) return 4; if (n === 6) return 3; if (n === 5) return 2;
+            return 1;
         };
 
-        const crearMazo = () => {
-            const mazo = [];
-            PALOS.forEach(p => {
-                NUMEROS.forEach(n => {
-                    mazo.push({ n, p, v: getValorTruco(n, p), id: `${n}-${p}` });
-                });
-            });
-            return mazo.sort(() => Math.random() - 0.5);
+        // Componente para dibujar los palitos (fósforos)
+        const MarcadorPuntos = ({ puntos }) => {
+            const gruposDe5 = Math.floor(puntos / 5);
+            const resto = puntos % 5;
+            
+            return (
+                <div className="flex flex-wrap w-16 gap-2 justify-center bg-black/20 p-2 rounded-lg">
+                    {[...Array(gruposDe5)].map((_, i) => (
+                        <div key={i} className="relative w-6 h-6 border-2 border-yellow-500/30">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400"></div>
+                            <div className="absolute top-0 left-0 w-1 h-full bg-yellow-400"></div>
+                            <div className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400"></div>
+                            <div className="absolute top-0 right-0 w-1 h-full bg-yellow-400"></div>
+                            <div className="absolute top-1/2 left-0 w-full h-1 bg-yellow-400 -rotate-45"></div>
+                        </div>
+                    ))}
+                    {resto > 0 && (
+                        <div className="grid grid-cols-2 gap-1">
+                            {[...Array(resto)].map((_, i) => <div key={i} className="fosforo"></div>)}
+                        </div>
+                    )}
+                </div>
+            );
         };
-
-        const calcularEnvido = (cartas) => {
-            let maxPuntos = 0;
-            const porPalo = {};
-            cartas.forEach(c => {
-                if (!porPalo[c.p]) porPalo[c.p] = [];
-                porPalo[c.p].push(c.n < 10 ? c.n : 0);
-            });
-
-            Object.values(porPalo).forEach(nums => {
-                nums.sort((a, b) => b - a);
-                if (nums.length >= 2) {
-                    maxPuntos = Math.max(maxPuntos, 20 + nums[0] + nums[1]);
-                } else {
-                    maxPuntos = Math.max(maxPuntos, nums[0]);
-                }
-            });
-            return maxPuntos;
-        };
-
-        // --- COMPONENTES ---
-        const Carta = ({ n, p, onClick, disabled, size="small" }) => (
-            <div 
-                onClick={!disabled ? onClick : null}
-                className={`card-shape bg-white rounded-lg border-2 border-slate-300 flex flex-col justify-between p-2 shadow-xl ${size === 'small' ? 'w-20 h-32' : 'w-24 h-36'} ${disabled ? 'opacity-50 grayscale' : ''}`}
-            >
-                <div className="flex flex-col leading-none">
-                    <span className="text-xl font-bold text-slate-800">{n}</span>
-                    <span className="text-[10px] uppercase text-slate-400">{p}</span>
-                </div>
-                <div className="text-center text-4xl">
-                    {p === 'Espada' && '⚔️'}
-                    {p === 'Basto' && '🪵'}
-                    {p === 'Oro' && '🟡'}
-                    {p === 'Copa' && '🏆'}
-                </div>
-                <div className="text-right leading-none rotate-180">
-                    <span className="text-xl font-bold text-slate-800">{n}</span>
-                </div>
-            </div>
-        );
 
         const App = () => {
             const [puntosYo, setPuntosYo] = useState(0);
             const [puntosIA, setPuntosIA] = useState(0);
             const [mano, setMano] = useState([]);
-            const [manoIA, setManoIA] = useState([]);
             const [mesaYo, setMesaYo] = useState([]);
             const [mesaIA, setMesaIA] = useState([]);
-            const [mensaje, setMensaje] = useState("¡Tu turno!");
+            const [mensaje, setMensaje] = useState("¡Tu turno, miente!");
 
-            const nuevaMano = () => {
-                const m = crearMazo();
-                setMano(m.slice(0, 3));
-                setManoIA(m.slice(3, 6));
+            const repartir = () => {
+                playSfx('card');
+                const mazo = [];
+                PALOS.forEach(p => NUMEROS.forEach(n => mazo.push({ n, p, v: getValor(n, p), id: Math.random() })));
+                const barajado = mazo.sort(() => Math.random() - 0.5);
+                setMano(barajado.slice(0, 3));
                 setMesaYo([]);
                 setMesaIA([]);
-                setMensaje("¡Tu turno!");
+                setMensaje("Cartas nuevas...");
             };
 
-            useEffect(() => { nuevaMano(); }, []);
+            useEffect(() => { repartir(); }, []);
 
-            const puntosEnvido = useMemo(() => calcularEnvido(mano), [mano]);
+            const cantar = (tipo) => {
+                playSfx(tipo === 'truco' ? 'truco' : 'envido');
+                setMensaje(tipo.toUpperCase() + "!!!");
+            };
 
-            const jugarCarta = (carta) => {
-                if (mesaYo.length >= 3) return;
+            const tirarCarta = (c) => {
+                playSfx('card');
+                setMesaYo([...mesaYo, c]);
+                setMano(mano.filter(card => card.id !== c.id));
                 
-                // Jugador juega
-                setMesaYo([...mesaYo, carta]);
-                setMano(mano.filter(c => c.id !== carta.id));
-
-                // IA juega (IA muy básica: juega su carta más alta)
+                // IA responde
                 setTimeout(() => {
-                    const cartaIA = manoIA[0];
-                    setMesaIA([...mesaIA, cartaIA]);
-                    setManoIA(manoIA.slice(1));
-                    
+                    const cartaFicticiaIA = { n: '?', p: '?', v: 0, id: Math.random() };
+                    setMesaIA([...mesaIA, cartaFicticiaIA]);
                     if (mesaYo.length === 2) {
-                        setMensaje("Fin de ronda. Repartiendo...");
-                        setTimeout(nuevaMano, 2000);
+                        setPuntosYo(prev => prev + 1); // Suma un punto por ganar la mano
+                        setTimeout(repartir, 1500);
                     }
-                }, 600);
+                }, 500);
             };
 
             return (
-                <div className="h-screen w-screen felt-table flex flex-col text-white">
-                    {/* Header */}
-                    <div className="p-4 flex justify-between items-center bg-black/20">
-                        <div className="points-box text-center">
-                            <p className="text-[10px] uppercase">Rival</p>
-                            <p className="text-2xl font-black text-red-500">{puntosIA}</p>
+                <div className="h-screen w-screen felt-table flex flex-col text-white select-none">
+                    {/* Marcador Profesional */}
+                    <div className="flex justify-between p-4 bg-black/40 border-b border-white/10">
+                        <div className="flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-red-400">RIVAL</span>
+                            <MarcadorPuntos puntos={puntosIA} />
                         </div>
-                        <h1 className="font-serif italic text-2xl tracking-widest text-yellow-500">TRUCO</h1>
-                        <div className="points-box text-center">
-                            <p className="text-[10px] uppercase">Yo</p>
-                            <p className="text-2xl font-black text-green-500">{puntosYo}</p>
+                        <div className="text-center">
+                            <h2 className="text-yellow-500 font-black italic tracking-tighter text-xl">TRUCO</h2>
+                            <span className="text-[9px] text-gray-400 uppercase">Mesa de Rosario</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-green-400">NOSOTROS</span>
+                            <MarcadorPuntos puntos={puntosYo} />
                         </div>
                     </div>
 
-                    {/* Mesa */}
-                    <div className="flex-1 relative flex flex-col items-center justify-center gap-4">
+                    {/* Área de juego */}
+                    <div className="flex-1 relative flex flex-col justify-around py-10 items-center">
                         <div className="flex gap-2">
-                            {mesaIA.map(c => <Carta key={c.id} {...c} disabled />)}
-                        </div>
-                        <div className="h-px w-32 bg-white/10 my-4"></div>
-                        <div className="flex gap-2">
-                            {mesaYo.map(c => <Carta key={c.id} {...c} size="large" />)}
-                        </div>
-                        
-                        <div className="absolute top-4 left-4 bg-black/30 p-2 rounded-lg border border-white/10">
-                            <p className="text-[10px] text-gray-300">Envido: <span className="text-white font-bold">{puntosEnvido}</span></p>
+                            {mesaIA.map((c, i) => (
+                                <div key={i} className="w-16 h-24 bg-slate-800 rounded-lg border-2 border-white/20 flex items-center justify-center text-2xl">🎴</div>
+                            ))}
                         </div>
 
-                        <div className="absolute bottom-4 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm">
+                        <div className="bg-black/20 px-6 py-2 rounded-full border border-white/5 text-sm font-bold animate-pulse text-yellow-200">
                             {mensaje}
                         </div>
+
+                        <div className="flex gap-2">
+                            {mesaYo.map((c, i) => (
+                                <div key={i} className="w-20 h-32 bg-white rounded-lg flex flex-col justify-between p-2 text-black shadow-2xl border-2 border-yellow-500">
+                                    <span className="font-bold text-lg">{c.n}</span>
+                                    <span className="text-center text-3xl">{c.p === 'Espada' ? '⚔️' : c.p === 'Basto' ? '🪵' : c.p === 'Oro' ? '🟡' : '🏆'}</span>
+                                    <span className="font-bold text-lg self-end rotate-180">{c.n}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Controles/Acciones */}
-                    <div className="p-4 flex gap-2 justify-center mb-4">
-                        <button onClick={() => alert('Envido cantado: ' + puntosEnvido)} className="bg-blue-600 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg active:scale-95">Envido</button>
-                        <button onClick={() => alert('¡Truco!')} className="bg-red-600 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg active:scale-95">Truco</button>
-                        <button onClick={nuevaMano} className="bg-slate-700 px-3 py-2 rounded-xl font-bold text-xs uppercase shadow-lg">Mazo</button>
+                    {/* Botonera Acciones */}
+                    <div className="flex justify-center gap-4 mb-4">
+                        <button onClick={() => cantar('envido')} className="bg-gradient-to-b from-blue-500 to-blue-700 px-6 py-3 rounded-2xl font-black text-xs shadow-lg active:scale-90 transition-transform">ENVIDO</button>
+                        <button onClick={() => cantar('truco')} className="bg-gradient-to-b from-red-500 to-red-700 px-6 py-3 rounded-2xl font-black text-xs shadow-lg active:scale-90 transition-transform">TRUCO</button>
+                        <button onClick={repartir} className="bg-gray-700 px-4 py-3 rounded-2xl font-black text-[10px] shadow-lg">MAZO</button>
                     </div>
 
                     {/* Mis Cartas */}
-                    <div className="p-6 pb-12 flex justify-center gap-3 bg-black/40 rounded-t-[3rem]">
-                        {mano.map(c => (
-                            <Carta key={c.id} {...c} onClick={() => jugarCarta(c)} size="large" />
+                    <div className="bg-black/60 p-6 rounded-t-[3rem] flex justify-center gap-4 border-t border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+                        {mano.map((c) => (
+                            <div 
+                                key={c.id} 
+                                onClick={() => tirarCarta(c)}
+                                className="w-24 h-36 bg-white rounded-xl flex flex-col justify-between p-3 text-black shadow-xl card-animate border-2 border-slate-200 hover:-translate-y-4 transition-transform cursor-pointer"
+                            >
+                                <span className="font-bold text-xl">{c.n}</span>
+                                <span className="text-center text-4xl">{c.p === 'Espada' ? '⚔️' : c.p === 'Basto' ? '🪵' : c.p === 'Oro' ? '🟡' : '🏆'}</span>
+                                <div className="text-right flex flex-col">
+                                    <span className="text-[8px] text-gray-400 uppercase">{c.p}</span>
+                                    <span className="font-bold text-xl rotate-180">{c.n}</span>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -194,6 +190,7 @@
     </script>
 </body>
 </html>
-          
-           
-          
+
+        
+                  
+    
