@@ -7,6 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Librería de Confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -31,18 +33,18 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            /* Eliminamos el overflow hidden para permitir scroll */
             overflow-y: auto;
             color: white;
         }
         #root { width: 100%; min-height: 100vh; max-width: 500px; }
-        .lucky-card { background-color: #f8f6e9; transition: all 0.5s ease; }
+        .lucky-card { background-color: #f8f6e9; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         
         .gold-card {
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             background-size: 200% 200%;
             animation: goldFlow 5s ease infinite;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.8);
+            transform: scale(1.02);
         }
         @keyframes goldFlow {
             0% { background-position: 0% 50%; }
@@ -93,11 +95,47 @@
             const [esDorada, setEsDorada] = useState(false);
             const cardRef = useRef(null);
 
+            const lanzarConfeti = () => {
+                const duration = 3 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#D4AF37', '#F8F6E9', '#AA771C']
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#D4AF37', '#F8F6E9', '#AA771C']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            };
+
             const nuevaFortuna = () => {
+                const suerte = Math.random() < 0.20;
                 const random = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
+                
                 setFortuna(random);
-                setEsDorada(Math.random() < 0.20);
-                // Al generar nueva, volvemos arriba de la pantalla por comodidad
+                setEsDorada(suerte);
+
+                // Lógica de Vibración y Confeti
+                if (suerte) {
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]); // Vibración rítmica para premio
+                    lanzarConfeti();
+                } else {
+                    if (navigator.vibrate) navigator.vibrate(50); // Vibración corta común
+                }
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
@@ -108,11 +146,7 @@
 
             const descargarImagen = () => {
                 if (cardRef.current) {
-                    html2canvas(cardRef.current, {
-                        scale: 2,
-                        logging: false, 
-                        useCORS: true 
-                    }).then(canvas => {
+                    html2canvas(cardRef.current, { scale: 2, logging: false, useCORS: true }).then(canvas => {
                         const image = canvas.toDataURL("image/png");
                         const link = document.createElement('a');
                         link.href = image;
@@ -125,59 +159,49 @@
             return (
                 <div className="min-h-screen w-full flex flex-col bg-instablack text-white font-sans">
                     
-                    {/* Header */}
                     <div className="sticky top-0 z-50 bg-instablack flex items-center gap-4 p-4 border-b border-instagreylight">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         <span className="font-bold text-lg">Suerte Diaria</span>
                     </div>
 
-                    {/* Contenido Principal con Padding inferior extra para scroll */}
                     <div className="flex-1 flex flex-col items-center p-4 gap-6 pb-24">
-                        
-                        {/* Perfil Mini */}
                         <a href={TIKTOK_URL} target="_blank" className="w-full flex items-center gap-3 px-2">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border ${esDorada ? 'bg-gold border-yellow-200' : 'bg-instagreylight border-white/10'}`}>
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border ${esDorada ? 'bg-gold border-yellow-200 animate-pulse' : 'bg-instagreylight border-white/10'}`}>
                                 {esDorada ? '👑' : '🔮'}
                             </div>
                             <div className="flex flex-col text-left">
                                 <span className={`font-bold text-sm ${esDorada ? 'text-yellow-400' : 'text-white'}`}>tu_fortuna_diaria_es</span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter italic">Ver en TikTok</span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter italic">Comunidad de Suerte</span>
                             </div>
                         </a>
 
-                        {/* TARJETA GIGANTE */}
                         <div ref={cardRef} className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
                             <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span>©</span><span className="rotate-90">©</span></div>
                             <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
                                 <h1 className="text-6xl font-black tracking-tighter leading-none italic uppercase">Hoy<br/><span className={esDorada ? 'text-7xl text-yellow-900' : 'text-7xl'}>Suerte</span></h1>
                                 <div className={`border-2 px-6 py-1 text-sm font-black rounded-full ${esDorada ? 'border-yellow-900 text-yellow-900' : 'border-black text-black'}`}>{fecha}</div>
                                 <p className="text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4">"{fortuna}"</p>
-                                <span className="text-[9px] text-gray-900 tracking-widest uppercase mt-4 opacity-80">https://tu-fortuna-diaria-es.vercel.app/</span>
+                                <span className="text-[9px] text-gray-900 tracking-widest uppercase mt-4 opacity-90">https://tu-fortuna-diaria-es.vercel.app/</span>
                             </div>
                             <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span className="-rotate-90">©</span><span className="rotate-180">©</span></div>
                         </div>
 
-                        {/* Botonera */}
                         <div className="w-full flex flex-col gap-3 px-2">
-                            <button 
-                                onClick={descargarImagen}
-                                className="w-full flex items-center justify-center gap-2 bg-instagreylight text-gray-200 font-semibold py-4 rounded-xl text-sm active:opacity-70 transition-all border border-white/5"
-                            >
+                            <button onClick={descargarImagen} className="w-full flex items-center justify-center gap-2 bg-instagreylight text-gray-200 font-semibold py-4 rounded-xl text-sm active:opacity-70 transition-all border border-white/5">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                Guardar para Compartir
+                                Guardar Fortuna
                             </button>
 
                             <button onClick={nuevaFortuna} className={`w-full font-black py-5 rounded-2xl text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all border-b-4 ${esDorada ? 'bg-yellow-500 text-yellow-950 border-yellow-700' : 'bg-white text-black border-gray-300'}`}>
-                                {esDorada ? '✨ Nueva Fortuna ✨' : 'Obtener Otra'}
+                                {esDorada ? '✨ Probar otra vez ✨' : 'Ver mi Suerte'}
                             </button>
                         </div>
                     </div>
 
-                    {/* NavBar Inferior (Fija al fondo) */}
                     <div className="fixed bottom-0 left-0 w-full bg-instablack border-t border-instagreylight px-10 py-5 flex justify-between items-center text-gray-400 z-50">
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                         <a href={TIKTOK_URL} target="_blank" className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[1.5px]">
+                         <a href={TIKTOK_URL} target="_blank" className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[1.5px] animate-bounce">
                             <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold italic text-center">T</div>
                          </a>
                     </div>
@@ -188,7 +212,10 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-
     <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+      
+       
+           
+              
