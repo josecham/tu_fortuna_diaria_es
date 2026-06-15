@@ -1,9 +1,69 @@
-<script type="text/babel">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Suerte Diaria - Gold Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Librería de Confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        instablack: '#000000',
+                        instagreydark: '#121212',
+                        instagreylight: '#262626',
+                        gold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            background-color: black;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            overflow-y: auto;
+            color: white;
+        }
+        #root { width: 100%; min-height: 100vh; max-width: 500px; }
+        .lucky-card { background-color: #f8f6e9; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .gold-card {
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            background-size: 200% 200%;
+            animation: goldFlow 5s ease infinite;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.8);
+            transform: scale(1.02);
+        }
+        @keyframes goldFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // CONFIGURACIÓN DE MERCADO PAGO
-        const ALIAS_MP = "jose.318.canjeo.mp"; 
-        const LINK_DIRECTO_MP = `https://link.mercadopago.com.ar/${ALIAS_MP}`;
+        const TIKTOK_URL = "https://www.facebook.com/groups/942830941793431";
 
         const listaFortunas = [
             "Un viaje inesperado te traerá gran alegría.", "Tu arduo trabajo pronto dará sus frutos. No te rindas.",
@@ -23,7 +83,7 @@
             "El amor propio es el inicio de un romance de por vida.", "Lo mejor está por venir. Créelo y lo verás.",
             "Tu mente es un imán; piensa en abundancia y la atraerás.", "Un cambio de perspectiva transformará tu semana.",
             "No cuentes los días, haz que los días cuenten.", "Alguien te observa con profunda admiración y respeto.",
-            "El universo removerá lo que te estanca para dejarte avanzar.", "Estás a un pensamiento de distancia de cambiar tu reality.",
+            "El universo removerá lo que te estanca para dejarte avanzar.", "Estás a un pensamiento de distancia de cambiar tu realidad.",
             "Una propuesta inesperada golpeará tu puerta muy pronto.", "Tu salud y energía física experimentarán una notable mejoría.",
             "El miedo es solo una ilusión; del otro lado está tu éxito.", "La respuesta que buscas llegará en forma de un encuentro casual.",
             "Tu intuición nunca se equivoca, escúchala con atención hoy.", "Un dinero olvidado o una deuda vieja volverá a tus manos.",
@@ -43,7 +103,7 @@
             "Hoy eres inmune a las malas energías ajenas. Brilla.", "El amor no se busca, se encuentra; mantén los ojos abiertos.",
             "Estás a punto de recibir el reconocimiento que mereces.", "Tu constancia inspirará a una persona de tu entorno.",
             "Una gran idea llegará mientras descansas; anótala.", "La suerte te acompañará en cada decisión que tomes hoy.",
-            "Tu pasado te preparó, tu presente te impulso, tu futuro te espera.", "Un ciclo difícil termina hoy; respira profundo.",
+            "Tu pasado te preparó, tu presente te impulsa, tu futuro te espera.", "Un ciclo difícil termina hoy; respira profundo.",
             "La persona en la que piensas también está pensando en ti.", "Un secreto positivo saldrá a la luz para tu beneficio.",
             "No te apresures, las mejores frutas maduran despacio.", "Tu billetera experimentará un alivio muy esperado.",
             "Hoy el destino te pondrá en el lugar correcto a la hora exacta.", "Una nueva amistad cambiará tu forma de ver el mundo.",
@@ -69,37 +129,48 @@
             const [fecha, setFecha] = useState("");
             const [esDorada, setEsDorada] = useState(false);
             const cardRef = useRef(null);
-            const animacionEnCurso = useRef(false);
 
             const lanzarConfeti = () => {
-                if (animacionEnCurso.current) return;
-                animacionEnCurso.current = true;
-                
-                const duration = 2.5 * 1000;
+                const duration = 3 * 1000;
                 const end = Date.now() + duration;
 
                 (function frame() {
-                    confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#D4AF37', '#F8F6E9', '#AA771C'] });
-                    confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#D4AF37', '#F8F6E9', '#AA771C'] });
-                    if (Date.now() < end) { requestAnimationFrame(frame); } else { animacionEnCurso.current = false; }
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#D4AF37', '#F8F6E9', '#AA771C']
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#D4AF37', '#F8F6E9', '#AA771C']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
                 }());
             };
 
             const nuevaFortuna = () => {
                 const suerte = Math.random() < 0.20;
-                let nuevaFrase = fortuna;
-                while (nuevaFrase === fortuna) {
-                    nuevaFrase = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
-                }
-                setFortuna(nuevaFrase);
+                const random = listaFortunas[Math.floor(Math.random() * listaFortunas.length)];
+                
+                setFortuna(random);
                 setEsDorada(suerte);
 
+                // Lógica de Vibración y Confeti
                 if (suerte) {
-                    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]); // Vibración rítmica para premio
                     lanzarConfeti();
                 } else {
-                    if (navigator.vibrate) navigator.vibrate(50);
+                    if (navigator.vibrate) navigator.vibrate(50); // Vibración corta común
                 }
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
@@ -110,22 +181,13 @@
 
             const descargarImagen = () => {
                 if (cardRef.current) {
-                    cardRef.current.classList.add('is-capturing');
-                    setTimeout(() => {
-                        html2canvas(cardRef.current, { 
-                            scale: 2.5, 
-                            logging: false, 
-                            useCORS: true,
-                            backgroundColor: null 
-                        }).then(canvas => {
-                            const image = canvas.toDataURL("image/png");
-                            const link = document.createElement('a');
-                            link.href = image;
-                            link.download = `Fortuna_${fecha.replace(/\s+/g, '_')}.png`;
-                            link.click();
-                            cardRef.current.classList.remove('is-capturing');
-                        });
-                    }, 100);
+                    html2canvas(cardRef.current, { scale: 2, logging: false, useCORS: true }).then(canvas => {
+                        const image = canvas.toDataURL("image/png");
+                        const link = document.createElement('a');
+                        link.href = image;
+                        link.download = `Fortuna_${fecha.replace(/\s+/g, '_')}.png`;
+                        link.click();
+                    });
                 }
             };
 
@@ -138,38 +200,28 @@
                     </div>
 
                     <div className="flex-1 flex flex-col items-center p-4 gap-6 pb-24">
-                        
-                        {/* Tarjeta de Fortuna */}
-                        <div ref={cardRef} className={`lucky-card w-full aspect-[3/4] rounded-2xl p-6 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
-                            <div className="w-full flex justify-between text-3xl font-serif opacity-10"><span>©</span><span className="rotate-90">©</span></div>
-                            
-                            <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
-                                <h1 className="text-5xl font-black tracking-tighter leading-none italic uppercase">Hoy<br/><span className={esDorada ? 'text-6xl text-yellow-900' : 'text-6xl'}>Suerte</span></h1>
-                                <div className={`border-2 px-5 py-0.5 text-xs font-black rounded-full ${esDorada ? 'border-yellow-900 text-yellow-900' : 'border-black text-black'}`}>{fecha}</div>
-                                <p className="text-xl md:text-2xl font-serif italic font-bold leading-tight px-2 mt-2">"{fortuna}"</p>
+                        <a href={TIKTOK_URL} target="_blank" className="w-full flex items-center gap-3 px-2">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border ${esDorada ? 'bg-gold border-yellow-200 animate-pulse' : 'bg-instagreylight border-white/10'}`}>
+                                {esDorada ? '👑' : '🔮'}
+                            </div>                                                                                                          
+                            <div className="flex flex-col text-left">
+                                <span className={`font-bold text-sm ${esDorada ? 'text-yellow-400' : 'text-white'}`}>reflexiones para el alma</span>
+                                <span className="text-[10px] text-gray-500 uppercase tracking-tighter italic">Comunidad de Facebook</span>
                             </div>
+                        </a>
 
-                            {/* Fila Inferior con Mención y Caja de Alias Estilizada */}
-                            <div className="w-full flex flex-col items-center gap-2 border-t border-black/10 pt-4 mt-2">
-                                <span className="text-[9px] font-black tracking-wider uppercase text-gray-500">¿Te gustó el mensaje? Invítame un cafecito</span>
-                                <div className={`px-4 py-1.5 rounded-xl border font-mono text-xs font-bold tracking-tight flex items-center gap-2 ${esDorada ? 'bg-yellow-900/10 border-yellow-900/30 text-yellow-950' : 'bg-black/5 border-black/10 text-black'}`}>
-                                    <span className="opacity-60 text-[10px]">ALIAS MP:</span>
-                                    <span>{ALIAS_MP}</span>
-                                </div>
+                        <div ref={cardRef} className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl ${esDorada ? 'gold-card' : ''}`}>
+                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span>©</span><span className="rotate-90">©</span></div>
+                            <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
+                                <h1 className="text-6xl font-black tracking-tighter leading-none italic uppercase">Hoy<br/><span className={esDorada ? 'text-7xl text-yellow-900' : 'text-7xl'}>Suerte</span></h1>
+                                <div className={`border-2 px-6 py-1 text-sm font-black rounded-full ${esDorada ? 'border-yellow-900 text-yellow-900' : 'border-black text-black'}`}>{fecha}</div>
+                                <p className="text-xl md:text-3xl font-serif italic font-bold leading-tight px-2 mt-4">"{fortuna}"</p>
+                                <span className="text-[9px] text-gray-900 tracking-widest uppercase mt-4 opacity-90">PUBLICACIÓN DIARIA EN EL GRUPO DE FB REFLEXIONES PARA EL ALMA</span>
                             </div>
+                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span className="-rotate-90">©</span><span className="rotate-180">©</span></div>
                         </div>
 
-                        {/* Botones de interacción */}
                         <div className="w-full flex flex-col gap-3 px-2">
-                            <a 
-                                href={LINK_DIRECTO_MP} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 bg-[#009EE3] text-white font-black py-4 rounded-xl text-sm uppercase tracking-wider shadow-lg active:scale-95 transition-all hover:bg-[#0087c4]"
-                            >
-                                💙 Invitar un Cafecito (Mercado Pago)
-                            </a>
-
                             <button onClick={descargarImagen} className="w-full flex items-center justify-center gap-2 bg-instagreylight text-gray-200 font-semibold py-4 rounded-xl text-sm active:opacity-70 transition-all border border-white/5">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                 Guardar Fortuna
@@ -181,12 +233,11 @@
                         </div>
                     </div>
 
-                    {/* Navbar inferior */}
                     <div className="fixed bottom-0 left-0 w-full bg-instablack border-t border-instagreylight px-10 py-5 flex justify-between items-center text-gray-400 z-50">
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.22A1.5 1.5 0 0 0 3 9.93v9.57a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V9.93a1.5 1.5 0 0 0-.53-1.12l-7.5-6.22ZM19.5 19.5h-15V9.93L12 3.73l7.5 6.2ZM12 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"></path></svg>
                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                         <a href={LINK_DIRECTO_MP} target="_blank" className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-400 to-blue-600 p-[1.5px] animate-bounce flex items-center justify-center">
-                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold italic text-center">MP</div>
+                         <a href={TIKTOK_URL} target="_blank" className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[1.5px] animate-bounce">
+                            <div className="w-full h-full rounded-full bg-black border-2 border-black overflow-hidden flex items-center justify-center text-[10px] text-white font-bold italic text-center">T</div>
                          </a>
                     </div>
                 </div>
@@ -196,3 +247,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html> 
