@@ -68,7 +68,7 @@
             "Un viaje inesperado te traerá gran alegría.", "Tu arduo trabajo pronto dará sus frutos. No te rindas.",
             "Hoy es un buen día para conectar con un viejo amigo.", "La paciencia es una virtud que te evitará problemas.",
             "Una nueva oportunidad financiera se aproxima.", "Confía en tu intuición; te guiará por el camino correcto.",
-            "Dedica tiempo hoy a cuidar de ti mismo. Te lo merece.", "Una sonrisa tuya puede cambiar el día de alguien más.",
+            "Dedica tiempo hoy a cuidar de ti mismo. Te lo mereces.", "Una sonrisa tuya puede cambiar el día de alguien más.",
             "El fracaso es la oportunidad de comenzar de nuevo.", "Aprende a soltar lo que ya no te sirve.",
             "Grandes cosas tienen comienzos pequeños.", "Tu creatividad florecerá en el momento menos pensado.",
             "Alguien está pensando cosas maravillosas de ti ahora.", "La suerte favorece a la mente preparada.",
@@ -212,7 +212,7 @@
                         <div ref={cardRef} className={`lucky-card w-full aspect-[3/4] rounded-2xl p-8 flex flex-col items-center justify-between text-black relative shadow-2xl overflow-hidden ${esDorada ? 'gold-card' : ''}`}>
                             
                             {/* Ilustración Superior Izquierda: Galletita abierta con papel */}
-                            <div className="absolute top-4 left-4 w-20 h-20 opacity-85 pointer-events-none select-none z-10">
+                            <div className="absolute top-4 left-4 w-20 h-20 opacity-85 pointer-events-none select-none z-20">
                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm">
                                     <path d="M45 50 C25 40 10 20 25 10 C40 0 50 25 55 35 C60 25 70 0 85 10 C100 20 85 40 65 50 C55 55 50 65 45 50 Z" fill="#f4b251" stroke="#4a2c00" strokeWidth="2.5" strokeLinejoin="round"/>
                                     <path d="M48 42 C40 32 35 20 28 15" fill="none" stroke="#4a2c00" strokeWidth="1.5"/>
@@ -223,7 +223,7 @@
                             </div>
 
                             {/* Ilustración Inferior Derecha: Galletita clásica cerrada */}
-                            <div className="absolute bottom-6 right-4 w-16 h-16 opacity-85 pointer-events-none select-none z-10">
+                            <div className="absolute bottom-6 right-4 w-16 h-16 opacity-85 pointer-events-none select-none z-20">
                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm">
                                     <path d="M20 70 C5 50 15 20 45 30 C75 40 85 15 90 40 C95 65 65 85 50 80 C35 85 25 80 20 70 Z" fill="#e29b32" stroke="#4a2c00" strokeWidth="2.5" strokeLinejoin="round"/>
                                     <path d="M45 30 C48 45 42 65 50 80" fill="none" stroke="#4a2c00" strokeWidth="2" strokeLinejoin="round"/>
@@ -231,11 +231,13 @@
                                 </svg>
                             </div>
 
-                            {/* Contenido Tradicional de la Tarjeta */}
-                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span>©</span><span className="rotate-90">©</span></div>
+                            {/* Marcas de agua tradicionales limpias en diagonal libre */}
+                            <div className="w-full flex justify-end text-4xl font-serif opacity-10">
+                                <span className="rotate-90">©</span>
+                            </div>
                             
-                            {/* TÍTULO MODIFICADO Y AJUSTADO */}
-                            <div className="flex-1 flex flex-col items-center justify-center text-center gap-5 z-20 w-full px-2">
+                            {/* TITULO Y AJUSTE DE CONTENIDO */}
+                            <div className="flex-1 flex flex-col items-center justify-center text-center gap-5 z-10 w-full px-2">
                                 <h1 className="text-4xl font-black tracking-tighter leading-none italic uppercase">
                                     Hoy<br/>
                                     <span className={`text-4xl md:text-5xl block mt-1 tracking-tight ${esDorada ? 'text-yellow-900' : 'text-black'}`}>
@@ -254,7 +256,9 @@
                                 <span className="text-[9px] text-gray-900 tracking-widest uppercase mt-4 opacity-90"> ☕ ¡Me invitas un cafecito!(Mercado Pago) jose.318.canjeo.mp </span>
                             </div>
                             
-                            <div className="w-full flex justify-between text-4xl font-serif opacity-10"><span className="-rotate-90">©</span><span className="rotate-180">©</span></div>
+                            <div className="w-full flex justify-start text-4xl font-serif opacity-10">
+                                <span className="-rotate-90">©</span>
+                            </div>
                         </div>
 
                         {/* BOTONES */}
@@ -287,3 +291,4 @@
     <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+    
